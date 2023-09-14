@@ -8,7 +8,6 @@ pub fn character_movement(
     time: Res<Time>,
 ) {
     for (mut transform, player) in &mut characters {
-        let movement_amount = player.speed * time.delta_seconds();
         let mut movement_vec = Vec2::new(0.0, 0.0);
 
         if input.pressed(KeyCode::W) {
@@ -26,7 +25,7 @@ pub fn character_movement(
         if movement_vec.length() > 0.0 {
             movement_vec = movement_vec.normalize();
         }
-        movement_vec *= movement_amount;
+        movement_vec *= player.speed * time.delta_seconds();
 
         transform.translation.x += movement_vec.x;
         transform.translation.y += movement_vec.y;

@@ -25,7 +25,16 @@ fn main() {
         )
         .insert_resource(Money(100.0))
         .add_systems(Startup, setup)
-        .add_systems(Update, (character_movement, spawn_sheep, sheep_lifetime))
+        .add_systems(
+            Update,
+            (
+                character_movement,
+                spawn_sheep,
+                sheep_lifetime,
+                sheep_target_setter,
+                sheep_movement,
+            ),
+        )
         .run();
 }
 

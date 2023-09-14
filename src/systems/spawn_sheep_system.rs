@@ -1,7 +1,7 @@
 use bevy::{ecs::query::QuerySingleError, prelude::*};
 
 use crate::{
-    components::{Player, Sheep},
+    components::{Player, Sheep, Target},
     resources::money_resource::Money,
 };
 
@@ -53,6 +53,13 @@ pub fn spawn_sheep(
                     },
                     Sheep {
                         lifetime: Timer::from_seconds(2.0, TimerMode::Once),
+                        movement_speed: 30.0,
+                    },
+                    Target {
+                        position: Vec2::new(
+                            player_transform.translation.x,
+                            player_transform.translation.y,
+                        ),
                     },
                 ));
             }
