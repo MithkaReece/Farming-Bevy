@@ -29,5 +29,6 @@ pub fn character_movement(
 
         transform.translation.x += movement_vec.x;
         transform.translation.y += movement_vec.y;
+        transform.translation = transform.translation.round();
     }
 }
