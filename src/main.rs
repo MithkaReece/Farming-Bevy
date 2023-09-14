@@ -1,5 +1,11 @@
-use bevy::core_pipeline::clear_color::ClearColorConfig;
-use bevy::prelude::*;
+mod components;
+mod resources;
+mod systems;
+
+use bevy::{prelude::*, render::camera::ScalingMode};
+use components::*;
+use resources::*;
+use systems::*;
 
 fn main() {
     App::new()
@@ -9,7 +15,7 @@ fn main() {
                 .set(WindowPlugin {
                     primary_window: Some(Window {
                         title: "Bevy Project Game".into(),
-                        resolution: (640.0, 480.0).into(),
+                        resolution: (1000.0, 700.0).into(),
                         resizable: false,
                         ..default()
                     }),
@@ -17,7 +23,9 @@ fn main() {
                 })
                 .build(),
         )
+        .insert_resource(Money(100.0))
         .add_systems(Startup, setup)
+        .add_systems(Update, (character_movement, spawn_sheep, sheep_lifetime))
         .run();
 }
 
@@ -26,12 +34,15 @@ fn setup(
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
-    commands.spawn(Camera2dBundle {
-        camera_2d: Camera2d {
-            clear_color: ClearColorConfig::Custom(Color::BLUE),
-        },
-        ..default()
-    });
+    let mut camera = Camera2dBundle::default();
+
+    camera.projection.scaling_mode = ScalingMode::AutoMin {
+        min_width: 256.0,
+        min_height: 144.0,
+    };
+
+    commands.spawn(camera);
+
     // Load the sprite sheet image
     let texture_handle = asset_server.load("Thief_anim.png");
     // Create a TextureAtlas from the sprite sheet (with no padding and no offset)
@@ -43,13 +54,16 @@ fn setup(
     let sprite_index = 0;
 
     // Spawn an entity with the selected sprite
-    commands.spawn(SpriteSheetBundle {
-        texture_atlas: atlas_handle,
-        sprite: TextureAtlasSprite {
-            index: sprite_index,
+    commands.spawn((
+        SpriteSheetBundle {
+            texture_atlas: atlas_handle,
+            sprite: TextureAtlasSprite {
+                index: sprite_index,
+                ..Default::default()
+            },
+            transform: Transform::from_scale(Vec3::new(3.0, 3.0, 1.0)),
             ..Default::default()
         },
-        transform: Transform::from_scale(Vec3::new(5.0,5.0,1.0)),
-        ..Default::default()
-    });
+        Player { speed: 100.0 },
+    ));
 }
