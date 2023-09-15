@@ -1,13 +1,13 @@
 use bevy::prelude::*;
 
 use crate::{
-    components::{Player, Tile},
+    components::{Player, Tile, TileType},
     resources::{tilemap_resource::GroundTilemap, tilemap_resource::ObjectTilemap, ScalingFactor},
 };
 
 pub fn hoe_ground(
     player: Query<&Transform, With<Player>>,
-    mut tiles: Query<(&mut TextureAtlasSprite, &Visibility, &Tile), Without<Player>>,
+    mut tiles: Query<&mut Tile>,
     input: Res<Input<KeyCode>>,
     object_tilemap: ResMut<ObjectTilemap>,
     ground_tilemap: ResMut<GroundTilemap>,
@@ -24,25 +24,28 @@ pub fn hoe_ground(
         player_transform.translation.y - full_scaling_factor / 2.0,
     );
 
-    if let Some(tile_id) =
-        get_ground_object_id(player_position, &object_tilemap, full_scaling_factor)
+    // Check object is empty
+    if let Some(tile_id) = get_object_tile_id(player_position, &object_tilemap, full_scaling_factor)
     {
-        for (_,visibility, tile) in &tiles {
+        for (tile) in &tiles {
             if tile_id == tile.unique_id {
-                if visibility != Visibility::Hidden {
+                if tile.visible {
                     return;
                 }
                 break;
             }
         }
     }
-
+    // Hoe grass tile
     if let Some(tile_id) = get_ground_tile_id(player_position, &ground_tilemap, full_scaling_factor)
     {
-        for (mut sprite, _, tile) in &mut tiles {
+        for (mut tile) in &mut tiles {
             if tile_id == tile.unique_id {
-                sprite.index += 1;
-                return;
+                if tile.tile_type == TileType::Grass {
+                    tile.set_type(TileType::Hoed);
+                    return;
+                }
+                break;
             }
         }
     }
@@ -65,7 +68,7 @@ pub fn get_ground_tile_id(
     }
 }
 
-pub fn get_ground_object_id(
+pub fn get_object_tile_id(
     pos: Vec2,
     tilemap: &ObjectTilemap,
     full_scaling_factor: f32,

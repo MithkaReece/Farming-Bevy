@@ -2,8 +2,8 @@ mod components;
 mod resources;
 mod systems;
 
-use bevy::input::common_conditions::input_toggle_active;
 use bevy::prelude::*;
+use bevy::{ecs::schedule::ScheduleLabel, input::common_conditions::input_toggle_active};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 use bevy_pixel_camera::{PixelCameraBundle, PixelCameraPlugin};
@@ -13,6 +13,9 @@ use resources::*;
 use systems::*;
 
 fn main() {
+    let mut schedule = Schedule::default();
+    schedule.add_systems((give_seeds, setup_inventory.before(give_seeds)));
+
     App::new()
         .add_plugins(
             DefaultPlugins
@@ -47,23 +50,47 @@ fn main() {
             width: 0,
             height: 0,
         })
-        .add_systems(Startup, (setup_camera, setup_player, setup_tilemap))
+        .add_systems(
+            Startup,
+            (setup_camera, setup_player, setup_tilemap, setup_inventory),
+        )
         .add_systems(
             Update,
             (
                 camera_follow,
                 character_movement,
+                plant_seed.before(hoe_ground),
                 hoe_ground,
                 spawn_sheep,
                 sheep_lifetime,
                 sheep_target_setter,
                 sheep_movement,
                 tile_hover,
+                sync_tile_visual,
+                give_seeds,
             ),
         )
-        .run();
+        .run()
 }
 
 fn setup_camera(mut commands: Commands) {
     commands.spawn(PixelCameraBundle::from_resolution(1000, 700, true));
+}
+
+fn give_seeds(mut query: Query<&mut Inventory>, input: Res<Input<KeyCode>>) {
+    if !input.just_pressed(KeyCode::R) {
+        return;
+    }
+
+    match query.get_single_mut() {
+        Ok(mut inv) => {
+            inv.add(ItemType::Seed(SeedType::Pumpkin));
+            let count = inv.get_number(ItemType::Seed(SeedType::Pumpkin));
+            println!("{:?}", count);
+        }
+        Err(_) => {
+            // Handle the case where there is no or multiple Inventory components.
+            // You can log an error or perform some other action here.
+        }
+    }
 }

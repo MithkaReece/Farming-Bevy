@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    components::{Tile, Tileref},
+    components::{Tile, TileType, Tileref, item_component::SeedType},
     resources::{
         tilemap_resource::{GroundTilemap, ObjectTilemap},
         ScalingFactor,
@@ -71,7 +71,8 @@ pub fn setup_tilemap(
                 },
                 Tile {
                     unique_id: tile_id,
-                    sprite_index: index,
+                    tile_type: TileType::Grass,
+                    visible: true,
                 },
             ));
             // Track tile in tilemap
@@ -94,16 +95,12 @@ pub fn setup_tilemap(
                     },
                     transform: Transform::from_xyz(pos.x, pos.y, -1.0)
                         * Transform::from_scale(Vec3::splat(scaling_factor.factor)),
-                    visibility: if visible {
-                        Visibility::Inherited
-                    } else {
-                        Visibility::Hidden
-                    },
                     ..Default::default()
                 },
                 Tile {
                     unique_id: tile_id,
-                    sprite_index: 0,
+                    tile_type: TileType::Seed(SeedType::Pumpkin),
+                    visible,
                 },
             ));
             // Track tile in tilemap
