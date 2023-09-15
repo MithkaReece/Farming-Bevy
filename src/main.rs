@@ -37,7 +37,12 @@ fn main() {
             pixel_factor: 16,
         })
         .insert_resource(Money(100.0))
-        .insert_resource(Tilemap {
+        .insert_resource(GroundTilemap {
+            tiles: Vec::new(),
+            width: 0,
+            height: 0,
+        })
+        .insert_resource(ObjectTilemap {
             tiles: Vec::new(),
             width: 0,
             height: 0,
