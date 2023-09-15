@@ -36,27 +36,27 @@ pub fn harvest_plant(
 
     // Retrieve object tile
     let mut plant_option: Option<Mut<'_, Plant>> = None;
-    let mut object_tile_option: Option<&Tile> = None;
+    //let mut object_tile_option: Option<&Tile> = None;
     for (plant, tile) in &mut tiles {
         if object_tile_id == tile.unique_id {
             plant_option = Some(plant);
-            object_tile_option = Some(tile);
+            //object_tile_option = Some(tile);
             break;
         }
     }
-    if plant_option.is_none() || object_tile_option.is_none() {
+    if plant_option.is_none() /* || object_tile_option.is_none()*/ {
         println!("Object or entity not found");
         return;
     }
     let mut plant = plant_option.unwrap();
-    let object_tile = object_tile_option.unwrap();
+    //let object_tile = object_tile_option.unwrap();
 
     // Check you can harvest the plant
     if plant.stage != plant.max_stage {
         return;
     }
     // Self produce
-    plant.stage = 0;
+    plant.stage = 1;
     money.0 += 5.0;
     println!("Money: {:?}", money.0);
 }

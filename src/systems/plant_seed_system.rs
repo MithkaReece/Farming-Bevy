@@ -114,7 +114,7 @@ pub fn plant_seed(
 
     commands.entity(entity).insert(Plant {
         stage: 0,
-        max_stage: 3,
+        max_stage: 4,
         growth_counter: 0.0,
         time_between_stages: 1.0,
     });

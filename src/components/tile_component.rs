@@ -26,7 +26,7 @@ impl Tile {
             TileType::Hoed => 129 + self.index_offset,
 
             TileType::Seed(seed_type) => match seed_type {
-                SeedType::Pumpkin => 1 + self.index_offset,
+                SeedType::Pumpkin => 0 + self.index_offset,
             },
             TileType::None => 0,
         }

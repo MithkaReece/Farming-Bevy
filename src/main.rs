@@ -81,19 +81,13 @@ fn setup_camera(mut commands: Commands) {
 }
 
 fn give_seeds(mut query: Query<&mut Inventory>, input: Res<Input<KeyCode>>) {
-    if !input.just_pressed(KeyCode::R) {
-        return;
+    if input.just_pressed(KeyCode::R) {
+        let mut inv = query.single_mut();
+        inv.add(ItemType::Seed(SeedType::Pumpkin));
+        let count = inv.get_number(ItemType::Seed(SeedType::Pumpkin));
+        println!("{:?}", count);
     }
 
-    match query.get_single_mut() {
-        Ok(mut inv) => {
-            inv.add(ItemType::Seed(SeedType::Pumpkin));
-            let count = inv.get_number(ItemType::Seed(SeedType::Pumpkin));
-            println!("{:?}", count);
-        }
-        Err(_) => {
-            // Handle the case where there is no or multiple Inventory components.
-            // You can log an error or perform some other action here.
-        }
-    }
+
+
 }
