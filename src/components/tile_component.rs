@@ -7,6 +7,7 @@ pub struct Tile {
     pub unique_id: usize,
     pub tile_type: TileType,
     pub visible: bool,
+    pub index_offset: usize,
 }
 
 // Define an enum to represent tile types
@@ -21,11 +22,11 @@ pub enum TileType {
 impl Tile {
     pub fn get_index(&self) -> usize {
         match self.tile_type {
-            TileType::Grass => 161,
-            TileType::Hoed => 129,
+            TileType::Grass => 161 + self.index_offset,
+            TileType::Hoed => 129 + self.index_offset,
 
             TileType::Seed(seed_type) => match seed_type {
-                SeedType::Pumpkin => 1,
+                SeedType::Pumpkin => 1 + self.index_offset,
             },
             TileType::None => 0,
         }

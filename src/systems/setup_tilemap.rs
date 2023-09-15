@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    components::{Tile, TileType, Tileref, item_component::SeedType},
+    components::{item_component::SeedType, Tile, TileType, Tileref},
     resources::{
         tilemap_resource::{GroundTilemap, ObjectTilemap},
         ScalingFactor,
@@ -73,6 +73,7 @@ pub fn setup_tilemap(
                     unique_id: tile_id,
                     tile_type: TileType::Grass,
                     visible: true,
+                    index_offset: 0,
                 },
             ));
             // Track tile in tilemap
@@ -82,8 +83,6 @@ pub fn setup_tilemap(
             });
             // Increment identifer
             tile_id += 1;
-
-            let visible = rand::random::<f32>() > 0.5;
 
             // Create plant tile
             commands.spawn((
@@ -99,8 +98,9 @@ pub fn setup_tilemap(
                 },
                 Tile {
                     unique_id: tile_id,
-                    tile_type: TileType::Seed(SeedType::Pumpkin),
-                    visible,
+                    tile_type: TileType::None,
+                    visible: false,
+                    index_offset: 0,
                 },
             ));
             // Track tile in tilemap

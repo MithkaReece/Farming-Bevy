@@ -68,6 +68,7 @@ fn main() {
                 tile_hover,
                 sync_tile_visual,
                 give_seeds,
+                plant_growth,
             ),
         )
         .run()

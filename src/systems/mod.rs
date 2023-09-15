@@ -1,6 +1,7 @@
 pub mod camera_follow_system;
 pub mod character_movement_system;
 pub mod hoe_ground_system;
+pub mod plant_growth_system;
 pub mod plant_seed_system;
 pub mod setup_inventory;
 pub mod setup_player;
@@ -15,6 +16,7 @@ pub mod tile_hover_system;
 pub use camera_follow_system::*;
 pub use character_movement_system::*;
 pub use hoe_ground_system::*;
+pub use plant_growth_system::*;
 pub use plant_seed_system::*;
 pub use setup_inventory::*;
 pub use setup_player::*;
