@@ -3,11 +3,11 @@ use bevy::prelude::*;
 use crate::components::Player;
 
 pub fn character_movement(
-    mut characters: Query<(&mut Transform, &Player)>,
+    mut players: Query<(&mut Transform, &Player)>,
     input: Res<Input<KeyCode>>,
     time: Res<Time>,
 ) {
-    for (mut transform, player) in &mut characters {
+    for (mut transform, player) in &mut players {
         let mut movement_vec = Vec2::new(0.0, 0.0);
 
         if input.pressed(KeyCode::W) {

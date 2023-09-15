@@ -14,7 +14,7 @@ pub fn spawn_sheep(
     player: Query<&Transform, With<Player>>,
 ) {
     // When you press space
-    if !input.just_pressed(KeyCode::Space) {
+    if !input.just_pressed(KeyCode::F) {
         return;
     }
 
