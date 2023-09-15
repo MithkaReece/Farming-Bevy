@@ -9,7 +9,6 @@ pub fn plant_growth(time: Res<Time>, mut plants: Query<(&mut Plant, &mut Tile)>)
             plant.growth_counter = 0.0;
             if plant.stage < plant.max_stage {
                 plant.stage += 1;
-                tile.index_offset = plant.stage;
             }
         }
     }

@@ -67,8 +67,10 @@ fn main() {
                 sheep_movement,
                 tile_hover,
                 sync_tile_visual,
+                sync_plant_visual,
                 give_seeds,
                 plant_growth,
+                harvest_plant,
             ),
         )
         .run()
