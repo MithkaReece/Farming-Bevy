@@ -10,7 +10,6 @@ pub fn plant_growth(time: Res<Time>, mut object_tilemap: ResMut<ObjectTilemap>) 
         for (_, tile) in &mut chunk.tiles {
             match tile.tile_type {
                 TileType::Seed(_, ref mut plant) => {
-                    println!("{:?}", plant);
                     plant.time_since_stage += time.delta();
                     //println!("{:?}", plant.time_since_stage);
                     if !plant.has_expired() {
@@ -19,7 +18,6 @@ pub fn plant_growth(time: Res<Time>, mut object_tilemap: ResMut<ObjectTilemap>) 
                     if plant.stage >= plant.max_stage {
                         continue;
                     }
-                    println!("Success");
                     //
                     plant.time_since_stage = Duration::from_secs(0);
                     plant.stage += 1;
