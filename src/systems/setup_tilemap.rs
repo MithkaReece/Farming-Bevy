@@ -12,44 +12,16 @@ use crate::{
     },
 };
 
+pub const MAP_POS: Vec2 = Vec2::new(0.0, 0.0);
 
 pub fn setup_tilemap(
-    mut commands: Commands,
-    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
-    asset_server: Res<AssetServer>,
     mut ground_tilemap: ResMut<GroundTilemap>,
     mut object_tilemap: ResMut<ObjectTilemap>,
     scaling_factor: ResMut<ScalingFactor>,
 ) {
-    // Load ground spritesheet
-    let ground_texture_handle = asset_server.load("farm_tilemap.png");
-    let ground_texture_atlas = TextureAtlas::from_grid(
-        ground_texture_handle,
-        Vec2::new(16.0, 16.0),
-        32,
-        16,
-        None,
-        None,
-    );
-    let ground_atlas_handle = texture_atlases.add(ground_texture_atlas);
-
-    // Load ground spritesheet
-    let plant_texture_handle = asset_server.load("plants.png");
-    let plant_texture_atlas = TextureAtlas::from_grid(
-        plant_texture_handle,
-        Vec2::new(16.0, 16.0),
-        5,
-        6,
-        None,
-        None,
-    );
-    let plant_atlas_handle = texture_atlases.add(plant_texture_atlas);
-
-    let map_pos = Vec2::new(0.0, 0.0);
-
     /*Generate chunks */
-    let map_chunk_width: usize = 20;
-    let map_chunk_height: usize = 20;
+    let map_chunk_width: usize = 1;
+    let map_chunk_height: usize = 1;
 
     // Create ground tilemap
     ground_tilemap.num_chunks_width = map_chunk_width;
@@ -57,40 +29,44 @@ pub fn setup_tilemap(
 
     for chunk_y in 0..map_chunk_height {
         for chunk_x in 0..map_chunk_width {
+            let chunk_pos = Vec2::new(
+                scaling_factor.get_full_factor() * (MAP_POS.x + (chunk_x * CHUNK_SIZE) as f32),
+                scaling_factor.get_full_factor() * (MAP_POS.y + (chunk_y * CHUNK_SIZE) as f32),
+            );
+
             let mut new_chunk = Chunk {
-                tiles: [[Tile {
-                    position: Vec3::new(0.0, 0.0, 0.0),
-                    tile_type: TileType::Grass,
-                    visible: true,
-                    index_offset: 0,
-                }; CHUNK_SIZE]; CHUNK_SIZE],
-                position: Vec2::new(
-                    scaling_factor.get_full_factor() *(map_pos.x + (chunk_x * CHUNK_SIZE) as f32),
-                    scaling_factor.get_full_factor() *(map_pos.y + (chunk_y * CHUNK_SIZE) as f32),
-                ),
+                tiles: HashMap::new(),
+                position: chunk_pos,
                 is_loaded: false,
             };
 
             // Set ids of the tiles based on its positioj
             for row in 0..CHUNK_SIZE {
                 for col in 0..CHUNK_SIZE {
-                    // Translate to map pos
-                    // Translate to correct chunk
                     // Translate to row and col in chunk
                     // Scale up
 
                     let pos = Vec3::new(
-                        scaling_factor.get_full_factor() * (map_pos.x
-                            + (chunk_x * CHUNK_SIZE + col) as f32),
-                        scaling_factor.get_full_factor() * (map_pos.y
-                            + (chunk_y * CHUNK_SIZE + row) as f32),
+                        scaling_factor.get_full_factor() * (chunk_pos.x + col as f32),
+                        scaling_factor.get_full_factor() * (chunk_pos.y + row as f32),
                         0.0,
                     );
-                    new_chunk.tiles[col][row].position = pos;
+                    //println!("Pos: ({:?}, {:?})", pos.x as usize, pos.y as usize);
+                    new_chunk.tiles.insert(
+                        (pos.x as usize, pos.y as usize),
+                        Tile {
+                            position: pos,
+                            tile_type: TileType::Grass,
+                            visible: true,
+                            index_offset: 0,
+                        },
+                    );
                 }
             }
 
-            ground_tilemap.tiles.insert((chunk_x, chunk_y), new_chunk);
+            ground_tilemap
+                .tiles
+                .insert((chunk_pos.x as usize, chunk_pos.y as usize), new_chunk);
         }
     }
 
@@ -100,17 +76,14 @@ pub fn setup_tilemap(
 
     for chunk_y in 0..map_chunk_height {
         for chunk_x in 0..map_chunk_width {
+            let chunk_pos = Vec2::new(
+                scaling_factor.get_full_factor() * (MAP_POS.x + (chunk_x * CHUNK_SIZE) as f32),
+                scaling_factor.get_full_factor() * (MAP_POS.y + (chunk_y * CHUNK_SIZE) as f32),
+            );
+
             let mut new_chunk = Chunk {
-                tiles: [[Tile {
-                    position: Vec3::new(0.0, 0.0, 0.0),
-                    tile_type: TileType::None,
-                    visible: false,
-                    index_offset: 0,
-                }; CHUNK_SIZE]; CHUNK_SIZE],
-                position: Vec2::new(
-                    map_pos.x + (chunk_x * CHUNK_SIZE) as f32,
-                    map_pos.y + (chunk_y * CHUNK_SIZE) as f32,
-                ),
+                tiles: HashMap::new(),
+                position: chunk_pos,
                 is_loaded: false,
             };
 
@@ -118,11 +91,19 @@ pub fn setup_tilemap(
             for row in 0..CHUNK_SIZE {
                 for col in 0..CHUNK_SIZE {
                     let pos = Vec3::new(
-                        map_pos.x + (chunk_x * CHUNK_SIZE + col) as f32,
-                        map_pos.y + (chunk_y * CHUNK_SIZE + row) as f32,
+                        scaling_factor.get_full_factor() * (chunk_pos.x + col as f32),
+                        scaling_factor.get_full_factor() * (chunk_pos.y + row as f32),
                         1.0,
                     );
-                    new_chunk.tiles[col][row].position = pos;
+                    new_chunk.tiles.insert(
+                        (pos.x as usize, pos.y as usize),
+                        Tile {
+                            position: pos,
+                            tile_type: TileType::None,
+                            visible: false,
+                            index_offset: 0,
+                        },
+                    );
                 }
             }
 
@@ -203,4 +184,3 @@ pub fn setup_tilemap(
     //     }
     // }
 }
-

@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, utils::HashMap};
 
 use crate::{
     components::{
@@ -10,6 +10,8 @@ use crate::{
         ScalingFactor,
     },
 };
+
+use super::MAP_POS;
 
 pub fn chunk_loading(
     mut commands: Commands,
@@ -65,95 +67,115 @@ pub fn chunk_loading(
             (chunk_center_x - player_position.x).hypot(chunk_center_y - player_position.y);
 
         if distance <= loading_radius {
-            if !chunk.is_loaded {
-                chunk.is_loaded = true;
-                // Load in chunk
-                let mut entities = vec![];
-
-                // Load ground tilemap
-                for row in 0..CHUNK_SIZE {
-                    for col in 0..CHUNK_SIZE {
-                        // Get ground tile
-                        let tile = chunk.tiles[col][row];
-                        let visibility = if tile.visible { Visibility::Inherited} 
-                          else { Visibility::Hidden};
-
-                        let entity = commands
-                            .spawn((SpriteSheetBundle {
-                                texture_atlas: ground_atlas_handle.clone(),
-                                sprite: TextureAtlasSprite {
-                                    index: tile.get_index(),
-                                    ..Default::default()
-                                },
-                                transform: Transform::from_xyz(
-                                    chunk.position.x
-                                        + scaling_factor.get_full_factor() * col as f32,
-                                    chunk.position.y
-                                        + scaling_factor.get_full_factor() * row as f32,
-                                    0.0,
-                                ) * Transform::from_scale(Vec3::splat(
-                                    scaling_factor.factor,
-                                )),
-                                visibility,
-                                ..Default::default()
-                            },))
-                            .id();
-                        entities.push(entity);
-                    }
-                }
-
-                // Load object tilemap
-                for row in 0..CHUNK_SIZE {
-                    for col in 0..CHUNK_SIZE {
-                      let object_chunk_option = object_tilemap.tiles.get(&(*chunk_x, *chunk_y));
-                      if object_chunk_option.is_none() {
-                        break;
-                      }
-                      let object_chunk = object_chunk_option.unwrap();
-
-                      let tile = object_chunk.tiles[col][row];
-                      let visibility = if tile.visible { Visibility::Inherited} 
-                        else { Visibility::Hidden};
-
-                        let entity = commands
-                            .spawn((SpriteSheetBundle {
-                                texture_atlas: plant_atlas_handle.clone(),
-                                sprite: TextureAtlasSprite {
-                                    index: tile.get_index(),
-                                    ..Default::default()
-                                },
-                                transform: Transform::from_xyz(
-                                    chunk.position.x
-                                        + scaling_factor.get_full_factor() * col as f32,
-                                    chunk.position.y
-                                        + scaling_factor.get_full_factor() * row as f32,
-                                    1.0,
-                                ) * Transform::from_scale(Vec3::splat(
-                                    scaling_factor.factor,
-                                )),
-                                visibility,
-                                ..Default::default()
-                            },))
-                            .id();
-                        entities.push(entity);
-                    }
-                }
-
-                // Save entites for unloading
-                entity_chunk_map
-                    .mapping
-                    .insert((*chunk_x, *chunk_y), entities);
-            }
-        } else {
             if chunk.is_loaded {
-                chunk.is_loaded = false;
-                // Unload chunk
-                if let Some(entities_to_unload) =
-                    entity_chunk_map.mapping.get(&(*chunk_x, *chunk_y))
-                {
-                    for &entity in entities_to_unload {
-                        commands.entity(entity).despawn();
+                break;
+            }
+            chunk.is_loaded = true;
+            // Load in chunk
+            let mut entities = HashMap::new();
+
+            // Load ground tilemap
+            for row in 0..CHUNK_SIZE {
+                for col in 0..CHUNK_SIZE {
+                    let pos = Vec3::new(
+                        chunk.position.x + scaling_factor.get_full_factor() * col as f32,
+                        chunk.position.y + scaling_factor.get_full_factor() * row as f32,
+                        0.0,
+                    );
+
+                    // Get ground tile
+                    let tile_option = chunk.tiles.get(&(pos.x as usize, pos.y as usize));
+                    if tile_option.is_none() {
+                        println!("Ground tile not found in tilemap when loading");
+                        break;
                     }
+                    let tile = tile_option.unwrap();
+                    let visibility = if tile.visible {
+                        Visibility::Inherited
+                    } else {
+                        Visibility::Hidden
+                    };
+
+                    let entity = commands
+                        .spawn((SpriteSheetBundle {
+                            texture_atlas: ground_atlas_handle.clone(),
+                            sprite: TextureAtlasSprite {
+                                index: tile.get_index(),
+                                ..Default::default()
+                            },
+                            transform: Transform::from_xyz(pos.x, pos.y, pos.z)
+                                * Transform::from_scale(Vec3::splat(scaling_factor.factor)),
+                            visibility,
+                            ..Default::default()
+                        },))
+                        .id();
+                    entities.insert((pos.x as usize, pos.y as usize, pos.z as usize), entity);
+                }
+            }
+
+            // Load object tilemap
+            for row in 0..CHUNK_SIZE {
+                for col in 0..CHUNK_SIZE {
+                    let object_chunk_option = object_tilemap.tiles.get(&(*chunk_x, *chunk_y));
+                    if object_chunk_option.is_none() {
+                        break;
+                    }
+                    let object_chunk = object_chunk_option.unwrap();
+
+                    let pos = Vec3::new(
+                        chunk.position.x + scaling_factor.get_full_factor() * col as f32,
+                        chunk.position.y + scaling_factor.get_full_factor() * row as f32,
+                        1.0,
+                    );
+
+                    // Get object tile
+                    let tile_option = object_chunk
+                        .tiles
+                        .get(&(pos.x.floor() as usize, pos.y.floor() as usize));
+                    if tile_option.is_none() {
+                        // println!(
+                        //     "Ground tile not found in tilemap when loading, at ({:?}, {:?})",
+                        //     pos.x, pos.y
+                        // );
+                        break;
+                    }
+                    let tile = tile_option.unwrap();
+                    let visibility = if tile.visible {
+                        Visibility::Inherited
+                    } else {
+                        Visibility::Hidden
+                    };
+
+                    let entity = commands
+                        .spawn((SpriteSheetBundle {
+                            texture_atlas: plant_atlas_handle.clone(),
+                            sprite: TextureAtlasSprite {
+                                index: tile.get_index(),
+                                ..Default::default()
+                            },
+                            transform: Transform::from_xyz(pos.x, pos.y, pos.z)
+                                * Transform::from_scale(Vec3::splat(scaling_factor.factor)),
+                            visibility,
+                            ..Default::default()
+                        },))
+                        .id();
+                    entities.insert((pos.x as usize, pos.y as usize, pos.z as usize), entity);
+                }
+            }
+
+            // Save entites for unloading
+            entity_chunk_map
+                .mapping
+                .insert((*chunk_x, *chunk_y), entities);
+        } else {
+            if !chunk.is_loaded {
+                break;
+            }
+            chunk.is_loaded = false;
+            // Unload chunk
+            if let Some(entities_to_unload) = entity_chunk_map.mapping.get(&(*chunk_x, *chunk_y)) {
+                for (_, &entity) in entities_to_unload {
+                    commands.entity(entity).despawn();
                 }
             }
         }
