@@ -1,17 +1,17 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, utils::HashMap};
 
-use crate::components::Tileref;
+use crate::components::chunk_component::Chunk;
 
 #[derive(Resource)]
 pub struct GroundTilemap {
-    pub tiles: Vec<Tileref>,
-    pub width: usize,
-    pub height: usize,
+    pub tiles: HashMap<(usize, usize), Chunk>,
+    pub num_chunks_width: usize,
+    pub num_chunks_height: usize,
 }
 
 #[derive(Resource)]
 pub struct ObjectTilemap {
-    pub tiles: Vec<Tileref>,
-    pub width: usize,
-    pub height: usize,
+    pub tiles: HashMap<(usize, usize), Chunk>,
+    pub num_chunks_width: usize,
+    pub num_chunks_height: usize,
 }

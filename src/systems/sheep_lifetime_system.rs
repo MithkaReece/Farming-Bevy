@@ -11,12 +11,12 @@ pub fn sheep_lifetime(
     for (sheep_entity, mut sheep) in &mut sheeps {
         sheep.lifetime.tick(time.delta());
 
-        if sheep.lifetime.finished() {
-            money.0 += 15.0;
+        // if sheep.lifetime.finished() {
+        //     money.0 += 15.0;
 
-            commands.entity(sheep_entity).despawn();
+        //     commands.entity(sheep_entity).despawn();
 
-            info!("Pig sold for £15! Current Money: £{:?}", money.0);
-        }
+        //     info!("Pig sold for £15! Current Money: £{:?}", money.0);
+        // }
     }
 }

@@ -2,16 +2,16 @@ use bevy::prelude::*;
 
 use super::item_component::SeedType;
 
-#[derive(Component)]
+#[derive(Component, Clone, Copy)]
 pub struct Tile {
-    pub unique_id: usize,
+    pub position: Vec3,
     pub tile_type: TileType,
     pub visible: bool,
     pub index_offset: usize,
 }
 
 // Define an enum to represent tile types
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum TileType {
     None,
     Grass,

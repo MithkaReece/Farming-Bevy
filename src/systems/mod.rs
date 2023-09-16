@@ -1,5 +1,6 @@
 pub mod camera_follow_system;
 pub mod character_movement_system;
+pub mod chunk_loading_system;
 pub mod harvest_plant_system;
 pub mod hoe_ground_system;
 pub mod plant_growth_system;
@@ -17,6 +18,7 @@ pub mod tile_hover_system;
 
 pub use camera_follow_system::*;
 pub use character_movement_system::*;
+pub use chunk_loading_system::*;
 pub use harvest_plant_system::*;
 pub use hoe_ground_system::*;
 pub use plant_growth_system::*;

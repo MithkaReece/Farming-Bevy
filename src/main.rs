@@ -3,6 +3,7 @@ mod resources;
 mod systems;
 
 use bevy::prelude::*;
+use bevy::utils::HashMap;
 use bevy::{ecs::schedule::ScheduleLabel, input::common_conditions::input_toggle_active};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
@@ -37,18 +38,21 @@ fn main() {
         )
         .insert_resource(ScalingFactor {
             factor: 4.0,
-            pixel_factor: 16,
+            tile_size: 16,
         })
         .insert_resource(Money(100.0))
         .insert_resource(GroundTilemap {
-            tiles: Vec::new(),
-            width: 0,
-            height: 0,
+            tiles: HashMap::new(),
+            num_chunks_width: 0,
+            num_chunks_height: 0,
         })
         .insert_resource(ObjectTilemap {
-            tiles: Vec::new(),
-            width: 0,
-            height: 0,
+            tiles: HashMap::new(),
+            num_chunks_width: 0,
+            num_chunks_height: 0,
+        })
+        .insert_resource(EntityChunkMapping {
+            mapping: HashMap::new(),
         })
         .add_systems(
             Startup,
@@ -71,6 +75,7 @@ fn main() {
                 give_seeds,
                 plant_growth,
                 harvest_plant,
+                chunk_loading,
             ),
         )
         .run()
@@ -87,7 +92,4 @@ fn give_seeds(mut query: Query<&mut Inventory>, input: Res<Input<KeyCode>>) {
         let count = inv.get_number(ItemType::Seed(SeedType::Pumpkin));
         println!("{:?}", count);
     }
-
-
-
 }

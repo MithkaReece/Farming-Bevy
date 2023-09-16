@@ -26,7 +26,8 @@ pub fn setup_player(
                 index: sprite_index,
                 ..Default::default()
             },
-            transform: Transform::from_scale(Vec3::splat(scaling_factor.factor)),
+            transform: Transform::from_scale(Vec3::splat(scaling_factor.factor))
+                * Transform::from_translation(Vec3::new(0.0, 0.0, 3.0)),
             ..Default::default()
         },
         Player { speed: 500.0 },
