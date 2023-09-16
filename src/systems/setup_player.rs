@@ -31,5 +31,6 @@ pub fn setup_player(
             ..Default::default()
         },
         Player { speed: 500.0 },
+        Name::new("Player"),
     ));
 }

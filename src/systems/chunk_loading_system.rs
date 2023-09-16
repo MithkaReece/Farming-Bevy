@@ -11,8 +11,6 @@ use crate::{
     },
 };
 
-use super::MAP_POS;
-
 pub fn chunk_loading(
     mut commands: Commands,
     player: Query<&Transform, With<Player>>,
@@ -66,11 +64,13 @@ pub fn chunk_loading(
         let distance =
             (chunk_center_x - player_position.x).hypot(chunk_center_y - player_position.y);
 
+        //print!("({:?},{:?}): {:?} |", chunk_x, chunk_y, distance);
         if distance <= loading_radius {
             if chunk.is_loaded {
-                break;
+                continue;
             }
             chunk.is_loaded = true;
+
             // Load in chunk
             let mut entities = HashMap::new();
 
@@ -86,8 +86,9 @@ pub fn chunk_loading(
                     // Get ground tile
                     let tile_option = chunk.tiles.get(&(pos.x as usize, pos.y as usize));
                     if tile_option.is_none() {
-                        println!("Ground tile not found in tilemap when loading");
-                        break;
+                        //println!("Ground tile not found in tilemap when loading");
+                        //println!("Couldn't find: ({:?},{:?})", pos.x as usize, pos.y as usize);
+                        continue;
                     }
                     let tile = tile_option.unwrap();
                     let visibility = if tile.visible {
@@ -97,31 +98,35 @@ pub fn chunk_loading(
                     };
 
                     let entity = commands
-                        .spawn((SpriteSheetBundle {
-                            texture_atlas: ground_atlas_handle.clone(),
-                            sprite: TextureAtlasSprite {
-                                index: tile.get_index(),
+                        .spawn((
+                            SpriteSheetBundle {
+                                texture_atlas: ground_atlas_handle.clone(),
+                                sprite: TextureAtlasSprite {
+                                    index: tile.get_index(),
+                                    ..Default::default()
+                                },
+                                transform: Transform::from_xyz(pos.x, pos.y, pos.z)
+                                    * Transform::from_scale(Vec3::splat(scaling_factor.factor)),
+                                visibility,
                                 ..Default::default()
                             },
-                            transform: Transform::from_xyz(pos.x, pos.y, pos.z)
-                                * Transform::from_scale(Vec3::splat(scaling_factor.factor)),
-                            visibility,
-                            ..Default::default()
-                        },))
+                            Name::new(format!("TG({},{})", pos.x, pos.y)),
+                        ))
                         .id();
                     entities.insert((pos.x as usize, pos.y as usize, pos.z as usize), entity);
                 }
             }
+            let object_chunk_option = object_tilemap.tiles.get_mut(&(*chunk_x, *chunk_y));
+            if object_chunk_option.is_none() {
+                println!("object chunk not found: ({:?},{:?})", chunk_x, chunk_y);
+                continue;
+            }
+            let object_chunk = object_chunk_option.unwrap();
+            object_chunk.is_loaded = true;
 
             // Load object tilemap
             for row in 0..CHUNK_SIZE {
                 for col in 0..CHUNK_SIZE {
-                    let object_chunk_option = object_tilemap.tiles.get(&(*chunk_x, *chunk_y));
-                    if object_chunk_option.is_none() {
-                        break;
-                    }
-                    let object_chunk = object_chunk_option.unwrap();
-
                     let pos = Vec3::new(
                         chunk.position.x + scaling_factor.get_full_factor() * col as f32,
                         chunk.position.y + scaling_factor.get_full_factor() * row as f32,
@@ -133,11 +138,11 @@ pub fn chunk_loading(
                         .tiles
                         .get(&(pos.x.floor() as usize, pos.y.floor() as usize));
                     if tile_option.is_none() {
-                        // println!(
-                        //     "Ground tile not found in tilemap when loading, at ({:?}, {:?})",
-                        //     pos.x, pos.y
-                        // );
-                        break;
+                        println!(
+                            "Object tile not found in tilemap when loading, at ({:?}, {:?})",
+                            pos.x, pos.y
+                        );
+                        continue;
                     }
                     let tile = tile_option.unwrap();
                     let visibility = if tile.visible {
@@ -147,17 +152,20 @@ pub fn chunk_loading(
                     };
 
                     let entity = commands
-                        .spawn((SpriteSheetBundle {
-                            texture_atlas: plant_atlas_handle.clone(),
-                            sprite: TextureAtlasSprite {
-                                index: tile.get_index(),
+                        .spawn((
+                            SpriteSheetBundle {
+                                texture_atlas: plant_atlas_handle.clone(),
+                                sprite: TextureAtlasSprite {
+                                    index: tile.get_index(),
+                                    ..Default::default()
+                                },
+                                transform: Transform::from_xyz(pos.x, pos.y, pos.z)
+                                    * Transform::from_scale(Vec3::splat(scaling_factor.factor)),
+                                visibility,
                                 ..Default::default()
                             },
-                            transform: Transform::from_xyz(pos.x, pos.y, pos.z)
-                                * Transform::from_scale(Vec3::splat(scaling_factor.factor)),
-                            visibility,
-                            ..Default::default()
-                        },))
+                            Name::new(format!("TO({},{})", pos.x, pos.y)),
+                        ))
                         .id();
                     entities.insert((pos.x as usize, pos.y as usize, pos.z as usize), entity);
                 }
@@ -167,9 +175,11 @@ pub fn chunk_loading(
             entity_chunk_map
                 .mapping
                 .insert((*chunk_x, *chunk_y), entities);
+
+            //println!("Load chunk ({:?},{:?})", chunk_x, chunk_y);
         } else {
             if !chunk.is_loaded {
-                break;
+                continue;
             }
             chunk.is_loaded = false;
             // Unload chunk
@@ -177,7 +187,10 @@ pub fn chunk_loading(
                 for (_, &entity) in entities_to_unload {
                     commands.entity(entity).despawn();
                 }
+            } else {
+                println!("Can't find entities to unload")
             }
+            //println!("Unload: ({:?},{:?})", chunk_x, chunk_y);
         }
     }
 }
