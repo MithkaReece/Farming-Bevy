@@ -43,6 +43,19 @@ pub fn chunk_loading(
         None,
     );
     let ground_atlas_handle = texture_atlases.add(ground_texture_atlas);
+
+    // Load ground spritesheet
+    let plant_texture_handle = asset_server.load("plants.png");
+    let plant_texture_atlas = TextureAtlas::from_grid(
+        plant_texture_handle,
+        Vec2::new(16.0, 16.0),
+        5,
+        6,
+        None,
+        None,
+    );
+    let plant_atlas_handle = texture_atlases.add(plant_texture_atlas);
+
     for ((chunk_x, chunk_y), chunk) in &mut ground_tilemap.tiles {
         let chunk_center_x =
             chunk.position.x + (scaling_factor.get_full_factor() * CHUNK_SIZE as f32 / 2.0);
@@ -57,13 +70,19 @@ pub fn chunk_loading(
                 // Load in chunk
                 let mut entities = vec![];
 
+                // Load ground tilemap
                 for row in 0..CHUNK_SIZE {
                     for col in 0..CHUNK_SIZE {
+                        // Get ground tile
+                        let tile = chunk.tiles[col][row];
+                        let visibility = if tile.visible { Visibility::Inherited} 
+                          else { Visibility::Hidden};
+
                         let entity = commands
                             .spawn((SpriteSheetBundle {
                                 texture_atlas: ground_atlas_handle.clone(),
                                 sprite: TextureAtlasSprite {
-                                    index: 161,
+                                    index: tile.get_index(),
                                     ..Default::default()
                                 },
                                 transform: Transform::from_xyz(
@@ -75,12 +94,51 @@ pub fn chunk_loading(
                                 ) * Transform::from_scale(Vec3::splat(
                                     scaling_factor.factor,
                                 )),
+                                visibility,
                                 ..Default::default()
                             },))
                             .id();
                         entities.push(entity);
                     }
                 }
+
+                // Load object tilemap
+                for row in 0..CHUNK_SIZE {
+                    for col in 0..CHUNK_SIZE {
+                      let object_chunk_option = object_tilemap.tiles.get(&(*chunk_x, *chunk_y));
+                      if object_chunk_option.is_none() {
+                        break;
+                      }
+                      let object_chunk = object_chunk_option.unwrap();
+
+                      let tile = object_chunk.tiles[col][row];
+                      let visibility = if tile.visible { Visibility::Inherited} 
+                        else { Visibility::Hidden};
+
+                        let entity = commands
+                            .spawn((SpriteSheetBundle {
+                                texture_atlas: plant_atlas_handle.clone(),
+                                sprite: TextureAtlasSprite {
+                                    index: tile.get_index(),
+                                    ..Default::default()
+                                },
+                                transform: Transform::from_xyz(
+                                    chunk.position.x
+                                        + scaling_factor.get_full_factor() * col as f32,
+                                    chunk.position.y
+                                        + scaling_factor.get_full_factor() * row as f32,
+                                    1.0,
+                                ) * Transform::from_scale(Vec3::splat(
+                                    scaling_factor.factor,
+                                )),
+                                visibility,
+                                ..Default::default()
+                            },))
+                            .id();
+                        entities.push(entity);
+                    }
+                }
+
                 // Save entites for unloading
                 entity_chunk_map
                     .mapping
