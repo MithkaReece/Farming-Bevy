@@ -46,7 +46,7 @@ pub fn harvest_plant(
                 return;
             }
             // Self produce
-            plant.time_since_stage = Duration::from_secs(0);
+            plant.growth_timer.reset();
             plant.stage = 1;
             // Map seed_type to money
             match seed_type {

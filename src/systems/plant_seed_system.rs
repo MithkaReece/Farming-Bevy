@@ -85,8 +85,7 @@ pub fn plant_seed(
         Plant {
             stage: 0,
             max_stage: 4,
-            time_since_stage: Duration::from_secs(0),
-            time_between_stages: Duration::from_secs(1),
+            growth_timer: Timer::from_seconds(1.0, TimerMode::Repeating),
         },
     ));
     println!("{:?}", object_tile.tile_type);

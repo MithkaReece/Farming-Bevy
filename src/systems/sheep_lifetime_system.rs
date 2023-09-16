@@ -9,7 +9,7 @@ pub fn sheep_lifetime(
     mut money: ResMut<Money>,
 ) {
     for (sheep_entity, mut sheep) in &mut sheeps {
-        sheep.lifetime.tick(time.delta());
+        //sheep.lifetime.tick(time.delta());
 
         // if sheep.lifetime.finished() {
         //     money.0 += 15.0;

@@ -1,7 +1,8 @@
 use crate::components::{Sheep, Target};
 use bevy::prelude::*;
 
-pub fn sheep_movement(mut sheeps: Query<(&mut Transform, &Sheep, &Target)>, time: Res<Time>) {
+pub fn sheep_movement(mut sheeps: Query<(&mut Transform, &Sheep, &Target)>, 
+time: Res<Time>) {
     for (mut transform, sheep, target) in &mut sheeps {
         let mut target_direction = Vec2::new(
             target.position.x - transform.translation.x,

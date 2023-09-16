@@ -4,7 +4,7 @@ use bevy::prelude::*;
 
 use super::item_component::SeedType;
 
-#[derive(Component, Clone, Copy)]
+#[derive(Component, Clone)]
 pub struct Tile {
     pub position: Vec3,
     pub tile_type: TileType,
@@ -12,22 +12,15 @@ pub struct Tile {
     pub index_offset: usize,
 }
 
-#[derive(Debug, PartialEq, Eq, Component, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Component, Clone)]
 pub struct Plant {
     pub stage: usize,
     pub max_stage: usize,
-    pub time_since_stage: Duration,
-    pub time_between_stages: Duration,
-}
-
-impl Plant {
-    pub fn has_expired(&self) -> bool {
-        self.time_since_stage >= self.time_between_stages
-    }
+    pub growth_timer: Timer,
 }
 
 // Define an enum to represent tile types
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub enum TileType {
     None,
     Grass,
@@ -37,7 +30,7 @@ pub enum TileType {
 
 impl Tile {
     pub fn get_index(&self) -> usize {
-        match self.tile_type {
+        match &self.tile_type {
             TileType::Grass => 161 + self.index_offset,
             TileType::Hoed => 129 + self.index_offset,
 

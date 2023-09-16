@@ -1,4 +1,4 @@
-use bevy::{ecs::query::QuerySingleError, prelude::*};
+use bevy::prelude::*;
 
 use crate::{
     components::{Player, Sheep, Target},
@@ -47,7 +47,7 @@ pub fn spawn_sheep(
             ..Default::default()
         },
         Sheep {
-            lifetime: Timer::from_seconds(2.0, TimerMode::Once),
+            hunger: 100.0,
             movement_speed: 30.0,
         },
         Target {
