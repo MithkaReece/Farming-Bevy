@@ -19,8 +19,8 @@ pub fn hoe_ground(
     let full_scaling_factor = scaling_factor.get_full_factor();
     let player_transform = player.single();
     let player_position = Vec2::new(
-        player_transform.translation.x,
-        player_transform.translation.y - full_scaling_factor / 2.0,
+        player_transform.translation.x+ scaling_factor.get_full_factor() / 2.0,
+        player_transform.translation.y + full_scaling_factor / 2.0,
     );
 
     // Get object tile
@@ -67,10 +67,7 @@ pub fn get_ground_tile(pos: Vec2, tilemap: &GroundTilemap, scaling_factor: f32) 
         return None;
     }
     let chunk = chunk_option.unwrap();
-    let tile_pos = Vec2::new(
-        (pos.x / scaling_factor).floor() * scaling_factor,
-        (pos.y / scaling_factor).floor() * scaling_factor,
-    );
+    let tile_pos = pos_to_tile_pos(pos, scaling_factor);
     chunk.tiles.get(&(tile_pos.x as usize, tile_pos.y as usize))
 }
 
@@ -89,10 +86,7 @@ pub fn get_ground_tile_mut(
         return None;
     }
     let chunk = chunk_option.unwrap();
-    let tile_pos = Vec2::new(
-        (pos.x / scaling_factor).floor() * scaling_factor,
-        (pos.y / scaling_factor).floor() * scaling_factor,
-    );
+    let tile_pos = pos_to_tile_pos(pos, scaling_factor);
     chunk
         .tiles
         .get_mut(&(tile_pos.x as usize, tile_pos.y as usize))
@@ -110,10 +104,7 @@ pub fn get_object_tile(pos: Vec2, tilemap: &ObjectTilemap, scaling_factor: f32) 
         return None;
     }
     let chunk = chunk_option.unwrap();
-    let tile_pos = Vec2::new(
-        (pos.x / scaling_factor).floor() * scaling_factor,
-        (pos.y / scaling_factor).floor() * scaling_factor,
-    );
+    let tile_pos = pos_to_tile_pos(pos, scaling_factor);
     println!(
         "Tile-pos: ({:?}, {:?})",
         tile_pos.x as usize, tile_pos.y as usize,
@@ -136,21 +127,24 @@ pub fn get_object_tile_mut(
         return None;
     }
     let chunk = chunk_option.unwrap();
-    let tile_pos = Vec2::new(
-        (pos.x / scaling_factor).floor() * scaling_factor,
-        (pos.y / scaling_factor).floor() * scaling_factor,
-    );
+    let tile_pos = pos_to_tile_pos(pos, scaling_factor);
     chunk
         .tiles
         .get_mut(&(tile_pos.x as usize, tile_pos.y as usize))
 }
 
 pub fn pos_to_chunk_pos(pos: Vec2, scaling_factor: f32) -> Vec2 {
-    // println!("POS: ({:?}, {:?})", pos.x, pos.y);
     Vec2::new(
         (CHUNK_SIZE as f32 * scaling_factor)
             * (pos.x / (CHUNK_SIZE as f32 * scaling_factor)).floor(),
         (CHUNK_SIZE as f32 * scaling_factor)
             * (pos.y / (CHUNK_SIZE as f32 * scaling_factor)).floor(),
+    )
+}
+
+pub fn pos_to_tile_pos(pos: Vec2, scaling_factor: f32) -> Vec2 {
+    Vec2::new(
+        (pos.x / scaling_factor).floor() * scaling_factor,
+        (pos.y / scaling_factor).floor() * scaling_factor,
     )
 }

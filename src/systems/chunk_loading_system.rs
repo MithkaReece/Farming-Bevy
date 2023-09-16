@@ -26,8 +26,8 @@ pub fn chunk_loading(
     //If no visible, checks it unloaded,
     let player_transform = player.single();
     let player_position = Vec2::new(
-        player_transform.translation.x,
-        player_transform.translation.y - scaling_factor.get_full_factor() / 2.0,
+        player_transform.translation.x + scaling_factor.get_full_factor() / 2.0,
+        player_transform.translation.y + scaling_factor.get_full_factor() / 2.0,
     );
 
     let loading_radius = scaling_factor.get_full_factor() * 20.0;

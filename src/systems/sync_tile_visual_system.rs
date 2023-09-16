@@ -11,14 +11,15 @@ pub fn sync_tile_visual(
     object_tilemap: Res<ObjectTilemap>,
     entity_chunk_map: Res<EntityChunkMapping>,
 ) {
-    // Loop through all chunks
+    // Loop through all loaded chunks
     for ((chunk_x, chunk_y), chunk) in &ground_tilemap.tiles {
         // If a chunk is loaded
         if !chunk.is_loaded {
             continue;
         }
         // Get entities for each key (position)
-        let entities_option = entity_chunk_map.mapping.get(&(*chunk_x, *chunk_y));
+        let entities_option = 
+            entity_chunk_map.mapping.get(&(*chunk_x, *chunk_y));
         if entities_option.is_none() {
             continue;
         }
@@ -28,7 +29,8 @@ pub fn sync_tile_visual(
         // For each entity
         for ((x, y, z), &entity) in entities {
             // Get components
-            if let Ok((mut sprite, mut visibility)) = tiles.get_mut(entity) {
+            if let Ok((mut sprite, mut visibility)) = 
+                tiles.get_mut(entity) {
                 // Get tile
                 let mut tile_option = None;
                 if *z == 0 {

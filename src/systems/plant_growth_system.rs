@@ -1,14 +1,30 @@
+use std::time::{Duration, Instant};
+
 use bevy::prelude::*;
 
-use crate::components::{Plant, Tile};
+use crate::{components::TileType, resources::tilemap_resource::ObjectTilemap};
 
-pub fn plant_growth(time: Res<Time>, mut plants: Query<(&mut Plant, &mut Tile)>) {
-    for (mut plant, mut tile) in &mut plants {
-        plant.growth_counter += time.delta_seconds();
-        if plant.growth_counter > plant.time_between_stages {
-            plant.growth_counter = 0.0;
-            if plant.stage < plant.max_stage {
-                plant.stage += 1;
+pub fn plant_growth(time: Res<Time>, mut object_tilemap: ResMut<ObjectTilemap>) {
+    // Loop through all chunks
+    for ((_, _), chunk) in &mut object_tilemap.tiles {
+        for (_, tile) in &mut chunk.tiles {
+            match tile.tile_type {
+                TileType::Seed(_, ref mut plant) => {
+                    println!("{:?}", plant);
+                    plant.time_since_stage += time.delta();
+                    //println!("{:?}", plant.time_since_stage);
+                    if !plant.has_expired() {
+                        continue;
+                    }
+                    if plant.stage >= plant.max_stage {
+                        continue;
+                    }
+                    println!("Success");
+                    //
+                    plant.time_since_stage = Duration::from_secs(0);
+                    plant.stage += 1;
+                }
+                _ => {}
             }
         }
     }

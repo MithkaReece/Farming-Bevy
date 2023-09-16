@@ -21,8 +21,8 @@ pub fn harvest_plant(
     // let full_scaling_factor = scaling_factor.factor * scaling_factor.pixel_factor as f32;
     // let player_transform = player.single();
     // let player_position = Vec2::new(
-    //     player_transform.translation.x,
-    //     player_transform.translation.y - full_scaling_factor / 2.0,
+    //     player_transform.translation.x+ scaling_factor.get_full_factor() / 2.0,
+    //     player_transform.translation.y + full_scaling_factor / 2.0,
     // );
 
     // // Check we are on a object tile (retrieve tile_id from hashmap)

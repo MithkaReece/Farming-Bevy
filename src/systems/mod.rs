@@ -12,7 +12,6 @@ pub mod sheep_lifetime_system;
 pub mod sheep_movement_system;
 pub mod sheep_target_setter_system;
 pub mod spawn_sheep_system;
-pub mod sync_plant_visual_system;
 pub mod sync_tile_visual_system;
 pub mod tile_hover_system;
 
@@ -30,6 +29,5 @@ pub use sheep_lifetime_system::*;
 pub use sheep_movement_system::*;
 pub use sheep_target_setter_system::*;
 pub use spawn_sheep_system::*;
-pub use sync_plant_visual_system::*;
 pub use sync_tile_visual_system::*;
 pub use tile_hover_system::*;
