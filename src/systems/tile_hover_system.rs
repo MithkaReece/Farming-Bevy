@@ -1,19 +1,16 @@
 use bevy::prelude::*;
 
 use crate::{
-    components::{chunk_component::EntityChunkMapping, Player, Tile},
-    resources::{tilemap_resource::GroundTilemap, ScalingFactor},
-    //systems::get_ground_tile_id,
+    components::{Player, Tilemap},
+    config::layer_enum::Layer,
+    resources::ScalingFactor,
 };
-
-use super::{get_ground_tile, pos_to_tile_pos};
 
 pub fn tile_hover(
     player: Query<&Transform, With<Player>>,
-    mut tiles: Query<&mut TextureAtlasSprite>,
-    ground_tilemap: ResMut<GroundTilemap>,
+    mut tile_entities: Query<&mut TextureAtlasSprite>,
     scaling_factor: ResMut<ScalingFactor>,
-    entity_chunk_map: Res<EntityChunkMapping>,
+    tilemap: Query<&Tilemap>,
 ) {
     let full_scaling_factor = scaling_factor.get_full_factor();
     let player_transform = player.single();
@@ -21,35 +18,52 @@ pub fn tile_hover(
         player_transform.translation.x + full_scaling_factor / 2.0,
         player_transform.translation.y + full_scaling_factor / 2.0,
     );
-    let player_tile_pos = pos_to_tile_pos(player_position, full_scaling_factor);
 
-    // Loop through all loaded chunks
-    for ((chunk_x, chunk_y), chunk) in &ground_tilemap.tiles {
-        // If a chunk is loaded
-        if !chunk.is_loaded {
-            continue;
-        }
-        // Get entities for each key (position)
-        let entities_option = entity_chunk_map.mapping.get(&(*chunk_x, *chunk_y));
-        if entities_option.is_none() {
-            continue;
-        }
-        let entities = entities_option.unwrap();
+    let tilemap = tilemap.single();
+    let chunk_size = tilemap.chunk_size as u32;
 
-        // For each entity
-        for ((x, y, z), &entity) in entities {
-            // Get sprite component
-            if let Ok(mut sprite) = tiles.get_mut(entity) {
-                // If selected position matches (highlight)
-                if *x == player_tile_pos.x as usize && *y == player_tile_pos.y as usize {
-                    sprite.color = Color::Rgba {
-                        red: 1.0,
-                        green: 0.9,
-                        blue: 0.9,
-                        alpha: 1.0,
-                    };
+    let (chunk_pos, tile_pos) = tilemap.from_pos_no_layer(&player_position, scaling_factor.get_full_factor());
+
+    for (chunk_x, row) in tilemap.chunks.iter().enumerate() {
+        for (chunk_y, col) in row.iter().enumerate() {
+            for (chunk_z, chunk) in col.iter().enumerate() {
+                if chunk_z != Layer::Ground as usize {
+                    continue;
+                }
+
+                if chunk_x as u32 == chunk_pos.x && chunk_y as u32 == chunk_pos.y {
+                    for y in 0..chunk_size as u32 {
+                        for x in 0..chunk_size as u32 {
+                            let entity = match chunk.get_tile_entity(&UVec2::new(x, y)) {
+                                Some(entity) => entity,
+                                None => continue,
+                            };
+                            if let Ok((mut sprite)) = tile_entities.get_mut(*entity) {
+                                if x == tile_pos.x && y == tile_pos.y {
+                                    sprite.color = Color::Rgba {
+                                        red: 1.0,
+                                        green: 0.9,
+                                        blue: 0.9,
+                                        alpha: 1.0,
+                                    };
+                                } else {
+                                    sprite.color = Color::WHITE;
+                                }
+                            }
+                        }
+                    }
                 } else {
-                    sprite.color = Color::WHITE;
+                    for _ in 0..chunk_size as u32 {
+                        for _ in 0..chunk_size as u32 {
+                            let entity = match chunk.get_tile_entity(&tile_pos) {
+                                Some(entity) => entity,
+                                None => continue,
+                            };
+                            if let Ok((mut sprite)) = tile_entities.get_mut(*entity) {
+                                sprite.color = Color::WHITE;
+                            }
+                        }
+                    }
                 }
             }
         }

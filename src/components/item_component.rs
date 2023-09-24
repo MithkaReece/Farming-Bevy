@@ -8,6 +8,9 @@ pub enum ItemType {
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum SeedType {
     Pumpkin,
+    Carrot,
+    Potato,
+    Tomato,
 }
 
 #[derive(Component)]

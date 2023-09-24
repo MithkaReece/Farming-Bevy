@@ -1,28 +1,20 @@
-use std::time::{Duration};
-
 use bevy::prelude::*;
 
 use crate::{
-    components::{
-        chunk_component::EntityChunkMapping, item_component::ItemType, Inventory, Plant, Player,
-        Tile, TileType,
+    components::{item_component::ItemType, Inventory, Plant, Player,
+        Tile, Tilemap,
     },
-    resources::{
-        tilemap_resource::{GroundTilemap, ObjectTilemap},
-        ScalingFactor,
-    },
-    systems::{get_ground_tile, get_object_tile_mut},
+    config::layer_enum::Layer,
+    // systems::{get_ground_tile, get_object_tile_mut},
+    resources::ScalingFactor,
 };
 
 pub fn plant_seed(
     input: Res<Input<KeyCode>>,
     mut inventory_query: Query<&mut Inventory>,
     player: Query<&Transform, With<Player>>,
-    mut object_tilemap: ResMut<ObjectTilemap>,
-    ground_tilemap: Res<GroundTilemap>,
-    entity_chunk_map: Res<EntityChunkMapping>,
     scaling_factor: Res<ScalingFactor>,
-    mut commands: Commands,
+    mut tilemap: Query<&mut Tilemap>,
 ) {
     if !input.just_pressed(KeyCode::Space) {
         return;
@@ -51,45 +43,51 @@ pub fn plant_seed(
         player_transform.translation.y + full_scaling_factor / 2.0,
     );
 
-    // Retrieve ground tile
-    let ground_tile_option = get_ground_tile(player_position, &ground_tilemap, full_scaling_factor);
-    if ground_tile_option.is_none() {
-        println!("Not on ground tile");
-        return;
-    }
-    // Check if ground is hoed
-    let ground_tile = ground_tile_option.unwrap();
-    if ground_tile.tile_type != TileType::Hoed {
-        println!("Ground not hoed");
-        return;
+    let mut tilemap = tilemap.single_mut();
+
+    let (chunk_pos, tile_pos) =
+        tilemap.from_pos_no_layer(&player_position, scaling_factor.get_full_factor());
+
+    // Check ground is hoed
+    match tilemap.get_tile_with_layer(&chunk_pos, Layer::Ground, &tile_pos) {
+        Some(ground_tile) => {
+            if ground_tile != &Tile::Hoed {
+                return;
+            }
+        }
+        None => {
+            println!("Not on ground tile (plant_seed_systems");
+            return;
+        }
     }
 
-    // Get object tile
-    let mut object_tile_option =
-        get_object_tile_mut(player_position, &mut object_tilemap, full_scaling_factor);
-    if object_tile_option.is_none() {
-        println!("Not on object tile");
-        return;
-    }
-    let mut object_tile = object_tile_option.unwrap();
-    // Make sure object is empty
-    if object_tile.tile_type != TileType::None {
-        println!("Object tile not empty");
-        return;
+    // Check object tile is empty
+    match tilemap.get_tile_with_layer(&chunk_pos, Layer::Object, &tile_pos) {
+        Some(object_tile) => {
+            if object_tile != &Tile::None {
+                return;
+            }
+        }
+        None => {
+            println!("Not on object tile (plant_seed_systems");
+            return;
+        }
     }
 
-    // Change tile type to seed from item type
+    // Set object tile to selected seed
     let ItemType::Seed(seed) = selected_item_type;
-    object_tile.set_type(TileType::Seed(
+    let new_tile = Tile::Seed(
         seed,
         Plant {
             stage: 0,
             max_stage: 4,
             growth_timer: Timer::from_seconds(1.0, TimerMode::Repeating),
         },
-    ));
-    println!("{:?}", object_tile.tile_type);
-
-    // Remove seed as it has been planted
+    );
+    // println!("Planted{:?}", &new_tile);
+    match tilemap.set_tile_with_layer(&chunk_pos, Layer::Object, &tile_pos, new_tile) {
+        Ok(_) => println!("Hoe ground"),
+        Err(e) => println!("{e}"),
+    }
     inventory.remove(selected_item_type);
 }

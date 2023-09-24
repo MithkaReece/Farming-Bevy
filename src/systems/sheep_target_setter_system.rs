@@ -1,10 +1,8 @@
 use crate::{
-    components::{chunk_component::CHUNK_SIZE, Target},
-    resources::{tilemap_resource::GroundTilemap, ScalingFactor},
+    components::Target,
+    resources::{ScalingFactor, TilemapInfo},
 };
 use bevy::prelude::*;
-
-use super::MAP_POS;
 
 struct BoxBounds {
     min_x: f32,
@@ -15,17 +13,16 @@ struct BoxBounds {
 
 pub fn sheep_target_setter(
     mut sheeps: Query<(&Transform, &mut Target)>,
-    ground_tilemap: Res<GroundTilemap>,
     scaling_factor: Res<ScalingFactor>,
+    tilemap_info: Res<TilemapInfo>,
 ) {
+    
     let full_scaling_factor = scaling_factor.get_full_factor();
     let bounds = BoxBounds {
-        min_x: MAP_POS.x,
-        max_x: MAP_POS.x
-            + (ground_tilemap.num_chunks_width * CHUNK_SIZE) as f32 * full_scaling_factor,
-        min_y: MAP_POS.y,
-        max_y: MAP_POS.y
-            + (ground_tilemap.num_chunks_width * CHUNK_SIZE) as f32 * full_scaling_factor,
+        min_x: 0.0,
+        max_x: (tilemap_info.dimensions.x * tilemap_info.chunk_size as u32) as f32 * full_scaling_factor,
+        min_y: 0.0,
+        max_y: (tilemap_info.dimensions.y * tilemap_info.chunk_size as u32) as f32 * full_scaling_factor,
     };
     let min_distance = 1.0;
 

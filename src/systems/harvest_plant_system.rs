@@ -1,20 +1,18 @@
-use std::time::Duration;
-
 use bevy::prelude::*;
 
 use crate::{
-    components::{item_component::SeedType, Plant, Player, Tile, TileType},
-    resources::{money_resource::Money, tilemap_resource::ObjectTilemap, ScalingFactor},
-    systems::get_object_tile_mut,
+    components::{item_component::SeedType, Player, Tile, Tilemap},
+    resources::{money_resource::Money, ScalingFactor}, config::layer_enum::Layer,
+    // systems::get_object_tile_mut,
     //systems::get_object_tile_id,
 };
 
 pub fn harvest_plant(
     input: Res<Input<KeyCode>>,
     player: Query<&Transform, With<Player>>,
-    mut object_tilemap: ResMut<ObjectTilemap>,
-    scaling_factor: ResMut<ScalingFactor>,
+    scaling_factor: Res<ScalingFactor>,
     mut money: ResMut<Money>,
+    mut tilemap: Query<&mut Tilemap>,
 ) {
     if !input.pressed(KeyCode::Space) {
         return;
@@ -27,21 +25,22 @@ pub fn harvest_plant(
         player_transform.translation.y + full_scaling_factor / 2.0,
     );
 
-    // Get object tile
-    let mut object_tile_option = get_object_tile_mut(
-        player_position,
-        &mut object_tilemap,
-        scaling_factor.get_full_factor(),
-    );
-    if object_tile_option.is_none() {
-        println!("Not on object tile");
-        return;
-    }
-    let mut object_tile = object_tile_option.unwrap();
+    let mut tilemap = tilemap.single_mut();
+
+    let (chunk_pos, tile_pos) =
+        tilemap.from_pos_no_layer(&player_position, scaling_factor.get_full_factor());
+
+    let object_tile = match tilemap.get_tile_mut(&UVec3::new(chunk_pos.x,chunk_pos.y, Layer::Object as u32), &tile_pos) {
+        Some(tile) => tile,
+        None => {
+            println!("Harvest can't find tile");
+            return
+        }
+    };
 
     // Pattern match plant object and collect + sell
-    match object_tile.tile_type {
-        TileType::Seed(seed_type, ref mut plant) => {
+    match object_tile {
+        Tile::Seed(seed_type, ref mut plant) => {
             if plant.stage != plant.max_stage {
                 return;
             }
@@ -53,6 +52,21 @@ pub fn harvest_plant(
                 SeedType::Pumpkin => {
                     money.0 += 5.0;
                     println!("Money: {:?}", money.0);
+                }
+                SeedType::Carrot => {
+                    money.0 += 5.0;
+                    println!("Money: {:?}", money.0);
+                }
+                SeedType::Potato => {
+                    money.0 += 5.0;
+                    println!("Money: {:?}", money.0);
+                }
+                SeedType::Tomato => {
+                    money.0 += 5.0;
+                    println!("Money: {:?}", money.0);
+                }
+                _ => {
+                    println!("Can't identify plant to sell");
                 }
             }
         }

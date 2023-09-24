@@ -9,6 +9,7 @@ dependencies = [
  "bevy",
  "bevy-inspector-egui",
  "bevy_pixel_camera",
+ "bevy_ui",
  "rand",
 ]
 

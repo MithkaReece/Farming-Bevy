@@ -28,8 +28,14 @@ pub fn spawn_sheep(
     // Load the sprite sheet image
     let texture_handle = asset_server.load("animal_spritesheet.png");
     // Create a TextureAtlas from the sprite sheet (with no padding and no offset)
-    let texture_atlas =
-        TextureAtlas::from_grid(texture_handle, Vec2::new(16.0, 16.0), 16, 30, None, None);
+    let texture_atlas = TextureAtlas::from_grid(
+        texture_handle,
+        Vec2::new(16.0, 16.0),
+        16,
+        30,
+        Some(Vec2::new(0.05, 0.05)),
+        None,
+    );
     // Add the TextureAtlas to the asset storage
     let atlas_handle = texture_atlases.add(texture_atlas);
     // Define the sprite for the specific frame you want to display
