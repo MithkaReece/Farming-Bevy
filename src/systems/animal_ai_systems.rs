@@ -18,7 +18,7 @@ pub fn animal_ai(
 
         let bt = &mut bt.0;
 
-        bt.execute(|action| match action {
+        bt.execute(&mut |action| match action {
             Thirsty => {
                 if animal.thirst < 30.0 {
                     println!("Thirsty");
@@ -31,14 +31,14 @@ pub fn animal_ai(
             DrinkWater => {
                 println!("Drink waters");
                 // if try_drink() {
-                Success
+                Failure
                 // } else {
                 //     (bonsai_bt::Failure, dt)
                 // }
             }
             GoToWater => {
                 println!("Go to water");
-                Success
+                Running
             }
             LookForWater => {
                 println!("Look for food");
@@ -73,12 +73,12 @@ pub fn animal_ai(
                 Success
             }
             Wander => {
-                // move_towards_target(
-                //     &mut transform,
-                //     &target,
-                //     animal.movement_speed,
-                //     time.delta_seconds(),
-                // );
+                move_towards_target(
+                    &mut transform,
+                    &target,
+                    animal.movement_speed,
+                    time.delta_seconds(),
+                );
                 println!("Wander");
                 Success
             }
@@ -87,7 +87,7 @@ pub fn animal_ai(
         // let mut bt = bt.0.clone();
         // println!("{}", animal.thirst);
         // let e: bonsai_bt::Event = bonsai_bt::UpdateArgs { dt }.into();
-        // bt.0.state.tick(&e, &mut |args| match *args.action {
+        // bt.state.tick(&e, &mut |args| match *args.action {
         //     Thirsty => {
         //         if animal.thirst < 30.0 {
         //             println!("Thirsty");
@@ -142,12 +142,12 @@ pub fn animal_ai(
         //         Success
         //     }
         //     Wander => {
-        //         // move_towards_target(
-        //         //     &mut transform,
-        //         //     &target,
-        //         //     animal.movement_speed,
-        //         //     time.delta_seconds(),
-        //         // );
+        //         move_towards_target(
+        //             &mut transform,
+        //             &target,
+        //             animal.movement_speed,
+        //             time.delta_seconds(),
+        //         );
         //         println!("Wander");
         //         Success
         //     }

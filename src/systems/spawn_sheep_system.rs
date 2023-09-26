@@ -3,8 +3,12 @@ use std::collections::HashMap;
 use bevy::prelude::*;
 
 use crate::{
-    components::{Animal, AnimalType, Player, Sheep, Target, AnimalBT},
-    resources::money_resource::Money, config::{animal_action_enum::{AnimalAction, self}, BehaviourTreeNode},
+    components::{Animal, AnimalBT, AnimalType, Player, Sheep, Target},
+    config::{
+        animal_action_enum::{self, AnimalAction},
+        BehaviourTreeNode,
+    },
+    resources::money_resource::Money,
 };
 
 pub fn spawn_sheep(
@@ -99,37 +103,24 @@ macro_rules! Select {
     };
 }
 
-pub fn get_bt() -> BehaviourTreeNode<AnimalAction>{
+pub fn get_bt() -> BehaviourTreeNode<AnimalAction> {
     // Define behavior tree
     Sequence![
         Select![
             Inverter(Box::new(Action(Thirsty))),
-            Select![
-                Action(DrinkWater),
-                Action(GoToWater),
-                Action(LookForWater)
-            ]
+            Select![Action(DrinkWater), Action(GoToWater), Action(LookForWater)]
         ],
         Select![
             Inverter(Box::new(Action(Hungry))),
-            Select![
-                Action(EatFood),
-                Action(GoToFood),
-                Action(LookForFood)
-            ]
+            Select![Action(EatFood), Action(GoToFood), Action(LookForFood)]
         ],
         Select![
             Inverter(Box::new(Action(InHerd))),
-            Select![
-                Action(Breed),
-                Action(MoveToHerd),
-                Action(Wander)
-            ]
+            Select![Action(Breed), Action(MoveToHerd), Action(Wander)]
         ],
-        Action(Wander) 
+        Action(Wander)
     ]
 }
-
 
 // pub fn get_bt() -> bonsai_bt::BT<AnimalAction, String, serde_json::Value>{
 //     let blackboard: HashMap<String, serde_json::Value> = HashMap::new();

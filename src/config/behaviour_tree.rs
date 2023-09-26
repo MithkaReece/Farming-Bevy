@@ -20,45 +20,45 @@ pub enum BehaviourTreeNode<A> {
     Action(A),
 }
 
-
 use std::collections::HashMap;
 
 impl<A> BehaviourTreeNode<A> {
-    pub fn execute<F>(&mut self, action_mapper: F) -> Status
+    pub fn execute<F>(&mut self, mut action_mapper: &mut F) -> Status
     where
-        F: Fn(&A) -> Status,
+        F: FnMut(&mut A) -> Status,
     {
         use Status::*;
 
-        fn inner_execute<A, F>(node: &mut BehaviourTreeNode<A>, action_mapper: &F) -> Status
+        fn inner_execute<A, F>(node: &mut BehaviourTreeNode<A>, action_mapper: &mut F) -> Status
         where
-            F: Fn(&A) -> Status,
+            F: FnMut(&mut A) -> Status,
         {
-
             match node {
                 BehaviourTreeNode::Sequence {
                     children,
                     current_child_index,
                 } => {
                     while *current_child_index < children.len() {
-                        let child_status =  inner_execute(&mut children[*current_child_index], action_mapper);
+                        let child_status =
+                            inner_execute(&mut children[*current_child_index], action_mapper);
                         match child_status {
                             Success => {
                                 *current_child_index += 1;
-                            },
+                            }
                             Failure => return Failure,
                             Running => return Running,
                         }
                     }
                     *current_child_index = 0;
                     Success
-                },
+                }
                 BehaviourTreeNode::Selector {
                     children,
                     current_child_index,
                 } => {
                     while *current_child_index < children.len() {
-                        let child_status =  inner_execute(&mut children[*current_child_index], action_mapper);
+                        let child_status =
+                            inner_execute(&mut children[*current_child_index], action_mapper);
                         match child_status {
                             Success => return Success,
                             Failure => {
@@ -69,8 +69,8 @@ impl<A> BehaviourTreeNode<A> {
                     }
                     *current_child_index = 0;
                     Failure
-                },
-                BehaviourTreeNode::Inverter(child) => match inner_execute(child,action_mapper) {
+                }
+                BehaviourTreeNode::Inverter(child) => match inner_execute(child, action_mapper) {
                     Success => Failure,
                     Failure => Success,
                     Running => Running,
@@ -79,6 +79,6 @@ impl<A> BehaviourTreeNode<A> {
             }
         }
 
-        inner_execute(self, &action_mapper)
+        inner_execute(self, &mut action_mapper)
     }
 }
