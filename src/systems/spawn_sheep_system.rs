@@ -5,8 +5,8 @@ use bevy::prelude::*;
 use crate::{
     components::{Animal, AnimalBT, AnimalType, Player, Sheep, Target},
     config::{
-        animal_action_enum::{self, AnimalAction},
-        BehaviourTreeNode,
+        animal_action_enum::{self, AnimalAction, AnimalCondition},
+        BehaviourTreeNode, BT,
     },
     resources::money_resource::Money,
 };
@@ -75,51 +75,41 @@ pub fn spawn_sheep(
 }
 
 use animal_action_enum::AnimalAction::*;
+use animal_action_enum::AnimalCondition::*;
 use BehaviourTreeNode::*;
 
-macro_rules! Sequence {
-    ( $( $child:expr ),* ) => {
-        {
-            let mut children = Vec::new();
-            $( children.push($child); )*
-            BehaviourTreeNode::Sequence {
-                children,
-                current_child_index: 0,
-            }
-        }
-    };
-}
-
-macro_rules! Select {
-    ( $( $child:expr ),* ) => {
-        {
-            let mut children = Vec::new();
-            $( children.push($child); )*
-            BehaviourTreeNode::Selector {
-                children,
-                current_child_index: 0,
-            }
-        }
-    };
-}
-
-pub fn get_bt() -> BehaviourTreeNode<AnimalAction> {
+pub fn get_bt() -> BT<AnimalAction, AnimalCondition> {
     // Define behavior tree
-    Sequence![
-        Select![
-            Inverter(Box::new(Action(Thirsty))),
-            Select![Action(DrinkWater), Action(GoToWater), Action(LookForWater)]
-        ],
-        Select![
-            Inverter(Box::new(Action(Hungry))),
-            Select![Action(EatFood), Action(GoToFood), Action(LookForFood)]
-        ],
-        Select![
-            Inverter(Box::new(Action(InHerd))),
-            Select![Action(Breed), Action(MoveToHerd), Action(Wander)]
-        ],
-        Action(Wander)
-    ]
+    let root: BehaviourTreeNode<AnimalAction, AnimalCondition> =
+        BehaviourTreeNode::new_sequence(vec![
+            BehaviourTreeNode::new_selector(vec![
+                Inverter(Box::new(Condition(Thirsty))),
+                BehaviourTreeNode::new_selector(vec![
+                    Action(DrinkWater),
+                    Action(GoToWater),
+                    Action(LookForWater),
+                ]),
+            ]),
+            BehaviourTreeNode::new_selector(vec![
+                Inverter(Box::new(Condition(Hungry))),
+                BehaviourTreeNode::new_selector(vec![
+                    Action(EatFood),
+                    Action(GoToFood),
+                    Action(LookForFood),
+                ]),
+            ]),
+            BehaviourTreeNode::new_selector(vec![
+                Inverter(Box::new(Condition(InHerd))),
+                BehaviourTreeNode::new_selector(vec![
+                    Action(Breed),
+                    Action(MoveToHerd),
+                    Action(Wander),
+                ]),
+            ]),
+            Action(Wander),
+        ]);
+
+    BT::new(root)
 }
 
 // pub fn get_bt() -> bonsai_bt::BT<AnimalAction, String, serde_json::Value>{

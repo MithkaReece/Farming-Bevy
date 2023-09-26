@@ -2,18 +2,21 @@ use super::Status;
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum AnimalAction {
-    Thirsty,
     DrinkWater,
     GoToWater,
     LookForWater,
 
-    Hungry,
     EatFood,
     GoToFood,
     LookForFood,
 
-    InHerd,
     Breed,
     MoveToHerd,
     Wander,
+}
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum AnimalCondition {
+    Thirsty,
+    Hungry,
+    InHerd
 }

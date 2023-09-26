@@ -19,15 +19,15 @@ pub fn animal_ai(
         let bt = &mut bt.0;
 
         bt.execute(&mut |action| match action {
-            Thirsty => {
-                if animal.thirst < 30.0 {
-                    println!("Thirsty");
-                    Success
-                } else {
-                    println!("Not Thirsty");
-                    Failure
-                }
-            }
+            // Thirsty => {
+            //     if animal.thirst < 30.0 {
+            //         println!("Thirsty");
+            //         Success
+            //     } else {
+            //         println!("Not Thirsty");
+            //         Failure
+            //     }
+            // }
             DrinkWater => {
                 println!("Drink waters");
                 // if try_drink() {
@@ -44,10 +44,6 @@ pub fn animal_ai(
                 println!("Look for food");
                 Success
             }
-            Hungry => {
-                println!("Hungry");
-                Success
-            }
             EatFood => {
                 println!("Eat food");
                 Success
@@ -58,10 +54,6 @@ pub fn animal_ai(
             }
             LookForFood => {
                 println!("Look for food");
-                Success
-            }
-            InHerd => {
-                println!("In herd");
                 Success
             }
             Breed => {

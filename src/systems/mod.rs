@@ -17,6 +17,7 @@ pub mod sheep_movement_system;
 pub mod spawn_sheep_system;
 pub mod sync_tile_visual_system;
 pub mod tile_hover_system;
+pub mod update_animal_blackboard_system;
 
 pub use animal_ai_systems::*;
 pub use animal_stats_system::*;
@@ -37,3 +38,4 @@ pub use sheep_movement_system::*;
 pub use spawn_sheep_system::*;
 pub use sync_tile_visual_system::*;
 pub use tile_hover_system::*;
+pub use update_animal_blackboard_system::*;

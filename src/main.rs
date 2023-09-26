@@ -78,6 +78,7 @@ fn main() {
                 plant_growth,
                 harvest_plant,
                 chunk_loading,
+                update_animal_blackboard,
                 animal_ai,
                 animal_stats,
                 // ui_inventory,
