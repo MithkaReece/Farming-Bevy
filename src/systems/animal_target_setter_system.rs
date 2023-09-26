@@ -11,22 +11,23 @@ struct BoxBounds {
     max_y: f32,
 }
 
-pub fn sheep_target_setter(
-    mut sheeps: Query<(&Transform, &mut Target)>,
+pub fn animal_target_setter(
+    mut animals: Query<(&Transform, &mut Target)>,
     scaling_factor: Res<ScalingFactor>,
     tilemap_info: Res<TilemapInfo>,
 ) {
-    
     let full_scaling_factor = scaling_factor.get_full_factor();
     let bounds = BoxBounds {
         min_x: 0.0,
-        max_x: (tilemap_info.dimensions.x * tilemap_info.chunk_size as u32) as f32 * full_scaling_factor,
+        max_x: (tilemap_info.dimensions.x * tilemap_info.chunk_size as u32) as f32
+            * full_scaling_factor,
         min_y: 0.0,
-        max_y: (tilemap_info.dimensions.y * tilemap_info.chunk_size as u32) as f32 * full_scaling_factor,
+        max_y: (tilemap_info.dimensions.y * tilemap_info.chunk_size as u32) as f32
+            * full_scaling_factor,
     };
     let min_distance = 1.0;
 
-    for (transform, mut target) in &mut sheeps {
+    for (transform, mut target) in &mut animals {
         // Close enough to target (set new)
         let distance = target
             .position

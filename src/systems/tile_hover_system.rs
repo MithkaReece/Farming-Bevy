@@ -22,7 +22,8 @@ pub fn tile_hover(
     let tilemap = tilemap.single();
     let chunk_size = tilemap.chunk_size as u32;
 
-    let (chunk_pos, tile_pos) = tilemap.from_pos_no_layer(&player_position, scaling_factor.get_full_factor());
+    let (chunk_pos, tile_pos) =
+        tilemap.from_pos_no_layer(&player_position, scaling_factor.get_full_factor());
 
     for (chunk_x, row) in tilemap.chunks.iter().enumerate() {
         for (chunk_y, col) in row.iter().enumerate() {
@@ -38,7 +39,7 @@ pub fn tile_hover(
                                 Some(entity) => entity,
                                 None => continue,
                             };
-                            if let Ok((mut sprite)) = tile_entities.get_mut(*entity) {
+                            if let Ok(mut sprite) = tile_entities.get_mut(*entity) {
                                 if x == tile_pos.x && y == tile_pos.y {
                                     sprite.color = Color::Rgba {
                                         red: 1.0,
@@ -59,7 +60,7 @@ pub fn tile_hover(
                                 Some(entity) => entity,
                                 None => continue,
                             };
-                            if let Ok((mut sprite)) = tile_entities.get_mut(*entity) {
+                            if let Ok(mut sprite) = tile_entities.get_mut(*entity) {
                                 sprite.color = Color::WHITE;
                             }
                         }

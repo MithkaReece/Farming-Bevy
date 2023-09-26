@@ -3,7 +3,6 @@ use bevy::prelude::*;
 use crate::resources::texture_atlas_handle_resource::TextureAtlasHandle;
 
 pub fn setup_textures(
-    mut commands: Commands,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
     asset_server: Res<AssetServer>,
     mut saved_atlas_handles: ResMut<TextureAtlasHandle>,

@@ -1,4 +1,4 @@
-use bevy::{prelude::*, utils::HashMap};
+use bevy::prelude::*;
 
 use crate::components::tile_component::Tile;
 
@@ -130,11 +130,4 @@ impl Chunk {
         }
         self.is_loaded = false;
     }
-}
-
-// Maps chunks to hashmap of tile entities
-// Hash map used Vec2 position + Layer for key
-#[derive(Resource)]
-pub struct EntityChunkMapping {
-    pub mapping: HashMap<(usize, usize), HashMap<(usize, usize, usize), Entity>>,
 }

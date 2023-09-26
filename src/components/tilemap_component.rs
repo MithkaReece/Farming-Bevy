@@ -38,7 +38,7 @@ pub struct Tilemap {
 
 impl Tilemap {
     pub fn new(dimensions: UVec3, chunk_size: usize) -> Self {
-        let mut chunks =
+        let chunks =
             vec![
                 vec![vec![Chunk::new(chunk_size); dimensions.z as usize]; dimensions.y as usize];
                 dimensions.x as usize

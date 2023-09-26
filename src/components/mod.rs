@@ -1,3 +1,5 @@
+pub mod animal_component;
+pub mod behaviour_tree_component;
 pub mod chunk_component;
 pub mod inventory_component;
 pub mod item_component;
@@ -7,6 +9,8 @@ pub mod target_component;
 pub mod tile_component;
 pub mod tilemap_component;
 
+pub use animal_component::*;
+pub use behaviour_tree_component::*;
 pub use chunk_component::*;
 pub use inventory_component::*;
 pub use item_component::*;

@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    components::{chunk_component::EntityChunkMapping, Tile, Tilemap},
+    components::{Tile, Tilemap},
     resources::texture_atlas_handle_resource::TextureAtlasHandle,
 };
 
@@ -13,16 +13,15 @@ pub fn sync_tile_visual(
         &mut TextureAtlasSprite,
         &mut Visibility,
     )>,
-    entity_chunk_map: Res<EntityChunkMapping>,
     mut tilemap: Query<&mut Tilemap>,
     saved_atlas_handles: Res<TextureAtlasHandle>,
 ) {
     let mut tilemap = tilemap.single_mut();
     let chunk_size = tilemap.chunk_size as u32;
 
-    for (chunk_x, row) in tilemap.chunks.iter_mut().enumerate() {
-        for (chunk_y, col) in row.iter_mut().enumerate() {
-            for (chunk_z, mut chunk) in col.iter_mut().enumerate() {
+    for (_, row) in tilemap.chunks.iter_mut().enumerate() {
+        for (_, col) in row.iter_mut().enumerate() {
+            for (_, chunk) in col.iter_mut().enumerate() {
                 if !chunk.is_loaded {
                     continue;
                 }

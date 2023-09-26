@@ -3,9 +3,8 @@ mod config;
 mod resources;
 mod systems;
 
+use bevy::input::common_conditions::input_toggle_active;
 use bevy::prelude::*;
-use bevy::utils::HashMap;
-use bevy::{ecs::schedule::ScheduleLabel, input::common_conditions::input_toggle_active};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 use bevy_pixel_camera::{PixelCameraBundle, PixelCameraPlugin};
@@ -51,9 +50,6 @@ fn main() {
             farm: Default::default(),
             plants: Default::default(),
         })
-        .insert_resource(EntityChunkMapping {
-            mapping: HashMap::new(),
-        })
         .add_systems(
             Startup,
             (
@@ -62,7 +58,7 @@ fn main() {
                 setup_player,
                 setup_tilemap,
                 setup_inventory,
-                spawn_inventory_ui,
+                // spawn_inventory_ui,
             ),
         )
         .add_systems(
@@ -74,7 +70,7 @@ fn main() {
                 hoe_ground,
                 spawn_sheep,
                 sheep_lifetime,
-                sheep_target_setter,
+                animal_target_setter,
                 sheep_movement,
                 tile_hover,
                 sync_tile_visual,
@@ -82,7 +78,9 @@ fn main() {
                 plant_growth,
                 harvest_plant,
                 chunk_loading,
-                ui_inventory,
+                animal_ai,
+                animal_stats,
+                // ui_inventory,
             ),
         )
         .run()
@@ -105,140 +103,232 @@ fn give_seeds(mut query: Query<&mut Inventory>, input: Res<Input<KeyCode>>) {
     }
 }
 
-pub fn spawn_inventory_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
-    //let inventory_ui_entity = build_inventory_ui(&mut commands, asset_server);
-    // Create a UI node with text
-    commands.spawn(TextBundle {
-        text: Text {
-            sections: vec![TextSection {
-                value: "Hello, Bevy!".to_string(),
-                style: TextStyle {
-                    font: Default::default(),
-                    font_size: 40.0,
-                    color: Color::WHITE,
-                },
-            }],
-            ..Default::default()
-        },
-        ..Default::default()
-    });
-}
+// use std::{collections::HashMap, thread::sleep, time::Duration};
+// use bonsai_bt::{
+//     Behavior::{Action, Invert, Select, Sequence},
+//     Event, Running, Status, Timer, UpdateArgs, BT,
+// };
 
-pub fn build_inventory_ui(commands: &mut Commands, asset_server: Res<AssetServer>) -> Entity {
-    // Load the item texture and store it with a handle
-    //let item_texture_handle = asset_server.load("item_texture.png");
+// fn get_animal_bt() -> BT<AnimalAction, String, serde_json::Value> {
+//     let blackboard: HashMap<String, serde_json::Value> = HashMap::new();
 
-    let inventory_ui_entity = commands
-        .spawn(NodeBundle {
-            style: Style {
-                display: Display::Flex,
-                width: Val::Percent(100.0),
-                height: Val::Percent(100.0),
-                align_items: AlignItems::Center,
-                justify_content: JustifyContent::Center,
-                ..default()
-            },
-            background_color: Color::Rgba {
-                red: 255.0,
-                green: 0.0,
-                blue: 0.0,
-                alpha: 100.0,
-            }
-            .into(),
-            ..default()
-        })
-        .with_children(|builder| {
-            let rows = 4;
-            let columns = 10;
+//     let thirsty = Select(vec![
+//         Invert(Box::new(Action(Thirsty))),
+//         Select(vec![
+//             Action(DrinkWater),
+//             Action(GoToWater),
+//             Action(LookForWater),
+//         ]),
+//     ]);
 
-            //let square_size = 100.0 / f32::max(rows as f32, columns as f32) as f32;
-            let ratio = columns as f32 / rows as f32;
-            // Grid
-            builder
-                .spawn(NodeBundle {
-                    style: Style {
-                        width: Val::Percent(80.0),
-                        aspect_ratio: Some(ratio),
-                        display: Display::Grid,
-                        padding: UiRect::all(Val::Px(5.0)),
-                        // 4 Columns
-                        grid_template_columns: RepeatedGridTrack::flex(columns, 1.0),
-                        grid_template_rows: RepeatedGridTrack::flex(rows, 1.0),
-                        row_gap: Val::Px(2.0),
-                        column_gap: Val::Px(2.0),
-                        ..default()
-                    },
-                    background_color: BackgroundColor(Color::DARK_GRAY),
-                    ..default()
-                })
-                .with_children(|builder| {
-                    for _ in 0..rows * columns {
-                        item_rect(builder, Color::ORANGE);
-                    }
-                });
-        })
-        .id();
+//     let food = Select(vec![
+//         Invert(Box::new(Action(Hungry))),
+//         Select(vec![Action(EatFood), Action(GoToFood), Action(LookForFood)]),
+//     ]);
 
-    inventory_ui_entity
-}
+//     let herd = Select(vec![
+//         Invert(Box::new(Action(InHerd))),
+//         Select(vec![Action(Breed), Action(MoveToHerd), Action(Wander)]),
+//     ]);
 
-#[derive(Component)]
-struct InventoryCell {
-    item_name: String,
-}
+//     let root = Sequence(vec![thirsty, food, herd, Action(Wander)]);
 
-fn item_rect(builder: &mut ChildBuilder, color: Color) {
-    builder
-        .spawn((
-            NodeBundle {
-                style: Style {
-                    display: Display::Grid,
-                    // padding: UiRect::all(Val::Px(3.0)),
-                    ..default()
-                },
-                background_color: BackgroundColor(Color::BLACK),
-                ..default()
-            },
-            InventoryCell {
-                item_name: "Cell".to_string(),
-            },
-        ))
-        .with_children(|builder| {
-            builder
-                .spawn(NodeBundle {
-                    background_color: BackgroundColor(color),
-                    ..default()
-                })
-                .with_children(|builder| {
-                    builder.spawn(TextBundle {
-                        text: Text {
-                            sections: vec![TextSection {
-                                value: "fail".to_string(),
-                                style: TextStyle {
-                                    font: Default::default(),
-                                    font_size: 40.0,
-                                    color: Color::WHITE,
-                                },
-                            }],
-                            ..default()
-                        },
-                        ..default()
-                    });
-                });
-        });
-}
+//     BT::new(root, blackboard)
+// }
 
-//System
-fn ui_inventory(mut query: Query<&mut Text, With<InventoryCell>>) {
-    for (mut text) in &mut query {
-        println!("Test");
-        text.sections[0].value = "Test".to_string();
-        // Turn the text purple
-        text.sections[0].style.color = Color::Rgba {
-            red: 1.0,
-            green: 0.0,
-            blue: 1.0,
-            alpha: 1.0,
-        };
-    }
-}
+// fn game_tick(timer: &mut Timer, bt: &mut BT<AnimalAction, String, serde_json::Value>) {
+    // how much time should the bt advance into the future
+//     let dt = timer.get_dt();
+
+//     // proceed to next iteration in event loop
+//     let e: Event = UpdateArgs { dt }.into();
+
+//     #[rustfmt::skip]
+//         bt.state.tick(&e,&mut |args: bonsai_bt::ActionArgs<Event, AnimalAction>| {
+//             match *args.action {
+//                 Thirsty => {
+//                     // if thirsty() {
+//                         (bonsai_bt::Success, dt)
+//                     //}
+//                     // else {
+//                     //     (bonsai_bt::Failure, dt)
+//                     // }
+//                 },
+//                 DrinkWater => {
+//                     // if try_drink() {
+//                         (bonsai_bt::Success, dt)
+//                     // } else {
+//                     //     (bonsai_bt::Failure, dt)
+//                     // }
+//                 },
+//                 GoToWater => {
+//                     (bonsai_bt::Success, dt)
+//                 },
+//                 LookForWater => {
+//                     (bonsai_bt::Success, dt)
+//                 },
+//                 Hungry => {
+//                     (bonsai_bt::Success, dt)
+//                 },
+//                 EatFood => {
+//                     (bonsai_bt::Success, dt)
+//                 },
+//                 GoToFood => {
+//                     (bonsai_bt::Success, dt)
+//                 },
+//                 LookForFood => {
+//                     (bonsai_bt::Success, dt)
+//                 },
+//                 InHerd => {
+//                     (bonsai_bt::Success, dt)
+//                 },
+//                 Breed => {
+//                     (bonsai_bt::Success, dt)
+//                 },
+//                 MoveToHerd => {
+//                     (bonsai_bt::Success, dt)
+//                 },
+//                 Wander => {
+//                     (bonsai_bt::Success, dt)
+//                 },
+//             }
+//         });
+// }
+
+// pub fn spawn_inventory_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
+//     //let inventory_ui_entity = build_inventory_ui(&mut commands, asset_server);
+//     // Create a UI node with text
+//     commands.spawn(TextBundle {
+//         text: Text {
+//             sections: vec![TextSection {
+//                 value: "Hello, Bevy!".to_string(),
+//                 style: TextStyle {
+//                     font: Default::default(),
+//                     font_size: 40.0,
+//                     color: Color::WHITE,
+//                 },
+//             }],
+//             ..Default::default()
+//         },
+//         ..Default::default()
+//     });
+// }
+
+// pub fn build_inventory_ui(commands: &mut Commands, asset_server: Res<AssetServer>) -> Entity {
+//     // Load the item texture and store it with a handle
+//     //let item_texture_handle = asset_server.load("item_texture.png");
+
+//     let inventory_ui_entity = commands
+//         .spawn(NodeBundle {
+//             style: Style {
+//                 display: Display::Flex,
+//                 width: Val::Percent(100.0),
+//                 height: Val::Percent(100.0),
+//                 align_items: AlignItems::Center,
+//                 justify_content: JustifyContent::Center,
+//                 ..default()
+//             },
+//             background_color: Color::Rgba {
+//                 red: 255.0,
+//                 green: 0.0,
+//                 blue: 0.0,
+//                 alpha: 100.0,
+//             }
+//             .into(),
+//             ..default()
+//         })
+//         .with_children(|builder| {
+//             let rows = 4;
+//             let columns = 10;
+
+//             //let square_size = 100.0 / f32::max(rows as f32, columns as f32) as f32;
+//             let ratio = columns as f32 / rows as f32;
+//             // Grid
+//             builder
+//                 .spawn(NodeBundle {
+//                     style: Style {
+//                         width: Val::Percent(80.0),
+//                         aspect_ratio: Some(ratio),
+//                         display: Display::Grid,
+//                         padding: UiRect::all(Val::Px(5.0)),
+//                         // 4 Columns
+//                         grid_template_columns: RepeatedGridTrack::flex(columns, 1.0),
+//                         grid_template_rows: RepeatedGridTrack::flex(rows, 1.0),
+//                         row_gap: Val::Px(2.0),
+//                         column_gap: Val::Px(2.0),
+//                         ..default()
+//                     },
+//                     background_color: BackgroundColor(Color::DARK_GRAY),
+//                     ..default()
+//                 })
+//                 .with_children(|builder| {
+//                     for _ in 0..rows * columns {
+//                         item_rect(builder, Color::ORANGE);
+//                     }
+//                 });
+//         })
+//         .id();
+
+//     inventory_ui_entity
+// }
+
+// #[derive(Component)]
+// struct InventoryCell {
+//     pub item_name: String,
+// }
+
+// fn item_rect(builder: &mut ChildBuilder, color: Color) {
+//     builder
+//         .spawn((
+//             NodeBundle {
+//                 style: Style {
+//                     display: Display::Grid,
+//                     // padding: UiRect::all(Val::Px(3.0)),
+//                     ..default()
+//                 },
+//                 background_color: BackgroundColor(Color::BLACK),
+//                 ..default()
+//             },
+//             InventoryCell {
+//                 item_name: "Cell".to_string(),
+//             },
+//         ))
+//         .with_children(|builder| {
+//             builder
+//                 .spawn(NodeBundle {
+//                     background_color: BackgroundColor(color),
+//                     ..default()
+//                 })
+//                 .with_children(|builder| {
+//                     builder.spawn(TextBundle {
+//                         text: Text {
+//                             sections: vec![TextSection {
+//                                 value: "fail".to_string(),
+//                                 style: TextStyle {
+//                                     font: Default::default(),
+//                                     font_size: 40.0,
+//                                     color: Color::WHITE,
+//                                 },
+//                             }],
+//                             ..default()
+//                         },
+//                         ..default()
+//                     });
+//                 });
+//         });
+// }
+
+// //System
+// fn ui_inventory(mut query: Query<&mut Text, With<InventoryCell>>) {
+//     for (mut text) in &mut query {
+//         println!("Test");
+//         text.sections[0].value = "Test".to_string();
+//         // Turn the text purple
+//         text.sections[0].style.color = Color::Rgba {
+//             red: 1.0,
+//             green: 0.0,
+//             blue: 1.0,
+//             alpha: 1.0,
+//         };
+//     }
+// }

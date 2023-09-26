@@ -10,7 +10,9 @@ dependencies = [
  "bevy-inspector-egui",
  "bevy_pixel_camera",
  "bevy_ui",
+ "bonsai-bt",
  "rand",
+ "serde_json",
 ]
 
 [[package]]
@@ -1195,6 +1197,17 @@ checksum = "8dd9e63c1744f755c2f60332b88de39d341e5e86239014ad839bd71c106dec42"
 dependencies = [
  "block-sys",
  "objc2-encode",
+]
+
+[[package]]
+name = "bonsai-bt"
+version = "0.4.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "551f189504a0780ac114b1ebec9c61f28f6317e903e4bafd86ec955aa2a30b4a"
+dependencies = [
+ "petgraph",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

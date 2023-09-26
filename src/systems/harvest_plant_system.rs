@@ -3,8 +3,6 @@ use bevy::prelude::*;
 use crate::{
     components::{item_component::SeedType, Player, Tile, Tilemap},
     resources::{money_resource::Money, ScalingFactor}, config::layer_enum::Layer,
-    // systems::get_object_tile_mut,
-    //systems::get_object_tile_id,
 };
 
 pub fn harvest_plant(
@@ -64,9 +62,6 @@ pub fn harvest_plant(
                 SeedType::Tomato => {
                     money.0 += 5.0;
                     println!("Money: {:?}", money.0);
-                }
-                _ => {
-                    println!("Can't identify plant to sell");
                 }
             }
         }
