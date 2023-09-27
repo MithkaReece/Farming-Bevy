@@ -7,7 +7,7 @@ use crate::{
 };
 
 pub fn hoe_ground(
-    player: Query<&Transform, With<Player>>,
+    player: Query<&Player>,
     input: Res<Input<KeyCode>>,
     scaling_factor: ResMut<ScalingFactor>,
     mut tilemap: Query<&mut Tilemap>,
@@ -16,17 +16,12 @@ pub fn hoe_ground(
         return;
     }
 
-    let full_scaling_factor = scaling_factor.get_full_factor();
-    let player_transform = player.single();
-    let player_position = Vec2::new(
-        player_transform.translation.x + scaling_factor.get_full_factor() / 2.0,
-        player_transform.translation.y + full_scaling_factor / 2.0,
-    );
-
     let mut tilemap = tilemap.single_mut();
 
-    let (chunk_pos, tile_pos) =
-        tilemap.from_pos_no_layer(&player_position, scaling_factor.get_full_factor());
+    let (chunk_pos, tile_pos) = tilemap.from_pos_no_layer(
+        &player.single().looking_location,
+        scaling_factor.get_full_factor(),
+    );
     // Check no object tile in the way of hoeing
     match tilemap.get_tile_with_layer(&chunk_pos, Layer::Object, &tile_pos) {
         Some(object_tile) => {

@@ -53,6 +53,7 @@ impl Tilemap {
 
     pub fn get_tile(&self, chunk_pos: &UVec3, tile_pos: &UVec2) -> Option<&Tile> {
         if self.invalid_chunk_pos(chunk_pos) {
+            println!("Invalid chunk pos");
             None
         } else {
             let chunk =
@@ -77,10 +78,12 @@ impl Tilemap {
         layer: Layer,
         tile_pos: &UVec2,
     ) -> Option<&Tile> {
-        self.get_tile(
+        let result = self.get_tile(
             &UVec3::new(chunk_pos.x, chunk_pos.y, layer as u32),
             tile_pos,
-        )
+        );
+        println!("{:?}", result);
+        result
     }
 
     pub fn set_tile(

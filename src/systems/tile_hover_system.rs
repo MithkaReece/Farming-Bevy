@@ -7,23 +7,18 @@ use crate::{
 };
 
 pub fn tile_hover(
-    player: Query<&Transform, With<Player>>,
+    player: Query<&Player>,
     mut tile_entities: Query<&mut TextureAtlasSprite>,
     scaling_factor: ResMut<ScalingFactor>,
     tilemap: Query<&Tilemap>,
 ) {
-    let full_scaling_factor = scaling_factor.get_full_factor();
-    let player_transform = player.single();
-    let player_position = Vec2::new(
-        player_transform.translation.x + full_scaling_factor / 2.0,
-        player_transform.translation.y + full_scaling_factor / 2.0,
-    );
-
     let tilemap = tilemap.single();
     let chunk_size = tilemap.chunk_size as u32;
 
-    let (chunk_pos, tile_pos) =
-        tilemap.from_pos_no_layer(&player_position, scaling_factor.get_full_factor());
+    let (chunk_pos, tile_pos) = tilemap.from_pos_no_layer(
+        &player.single().looking_location,
+        scaling_factor.get_full_factor(),
+    );
 
     for (chunk_x, row) in tilemap.chunks.iter().enumerate() {
         for (chunk_y, col) in row.iter().enumerate() {

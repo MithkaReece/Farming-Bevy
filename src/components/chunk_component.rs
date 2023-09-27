@@ -24,6 +24,7 @@ impl Chunk {
 
     pub fn get_tile(&self, tile_pos: &UVec2) -> Option<&Tile> {
         if tile_pos.x >= self.chunk_size as u32 || tile_pos.y >= self.chunk_size as u32 {
+            println!("invalid tile_pos");
             None
         } else {
             Some(&self.tiles[tile_pos.x as usize][tile_pos.y as usize])

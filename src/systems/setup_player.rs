@@ -30,7 +30,7 @@ pub fn setup_player(
                 * Transform::from_translation(Vec3::new(0.0, 0.0, 3.0)),
             ..Default::default()
         },
-        Player { speed: 500.0 },
+        Player { speed: 500.0, looking_location: Vec2::new(0.0, 0.0) },
         Name::new("Player"),
     ));
 }

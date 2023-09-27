@@ -1,9 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    components::{item_component::ItemType, Inventory, Plant, Player,
-        Tile, Tilemap,
-    },
+    components::{item_component::ItemType, Inventory, PlantData, Player, Tile, Tilemap},
     config::layer_enum::Layer,
     // systems::{get_ground_tile, get_object_tile_mut},
     resources::ScalingFactor,
@@ -12,7 +10,7 @@ use crate::{
 pub fn plant_seed(
     input: Res<Input<KeyCode>>,
     mut inventory_query: Query<&mut Inventory>,
-    player: Query<&Transform, With<Player>>,
+    player: Query<&Player>,
     scaling_factor: Res<ScalingFactor>,
     mut tilemap: Query<&mut Tilemap>,
 ) {
@@ -24,7 +22,7 @@ pub fn plant_seed(
     let mut inventory = inventory_query.single_mut();
     let selected_item_type_option = inventory.get_selected_item();
     if selected_item_type_option.is_none() {
-        println!("Not selected item");
+        println!("No selected item");
         return;
     }
     let selected_item_type = selected_item_type_option.unwrap();
@@ -35,18 +33,12 @@ pub fn plant_seed(
         return;
     }
 
-    // Calculate point we want to interact on
-    let full_scaling_factor = scaling_factor.get_full_factor();
-    let player_transform = player.single();
-    let player_position = Vec2::new(
-        player_transform.translation.x + scaling_factor.get_full_factor() / 2.0,
-        player_transform.translation.y + full_scaling_factor / 2.0,
-    );
-
     let mut tilemap = tilemap.single_mut();
 
-    let (chunk_pos, tile_pos) =
-        tilemap.from_pos_no_layer(&player_position, scaling_factor.get_full_factor());
+    let (chunk_pos, tile_pos) = tilemap.from_pos_no_layer(
+        &player.single().looking_location,
+        scaling_factor.get_full_factor(),
+    );
 
     // Check ground is hoed
     match tilemap.get_tile_with_layer(&chunk_pos, Layer::Ground, &tile_pos) {
@@ -78,7 +70,7 @@ pub fn plant_seed(
     let ItemType::Seed(seed) = selected_item_type;
     let new_tile = Tile::Seed(
         seed,
-        Plant {
+        PlantData {
             stage: 0,
             max_stage: 4,
             growth_timer: Timer::from_seconds(1.0, TimerMode::Repeating),

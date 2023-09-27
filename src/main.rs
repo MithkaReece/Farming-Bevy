@@ -44,7 +44,7 @@ fn main() {
         .insert_resource(Money(100.0))
         .insert_resource(TilemapInfo {
             chunk_size: 16,
-            dimensions: UVec3::new(1, 2, 2),
+            dimensions: UVec3::new(1, 2, 3),
         })
         .insert_resource(TextureAtlasHandle {
             farm: Default::default(),

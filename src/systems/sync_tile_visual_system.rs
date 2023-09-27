@@ -49,7 +49,7 @@ pub fn sync_tile_visual(
                                 _ => Visibility::Inherited,
                             };
 
-                            // Depending on state
+                            // Map tile to spritesheet
                             let correct_atlas_handle = match tile {
                                 Tile::Grass | Tile::Hoed => saved_atlas_handles.farm.clone(),
                                 Tile::Seed(_, _) => saved_atlas_handles.plants.clone(),
