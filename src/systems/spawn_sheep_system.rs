@@ -60,8 +60,8 @@ pub fn spawn_sheep(
         },
         Animal {
             animal_type: AnimalType::Sheep,
-            thirst: 40.0,
-            hunger: 100.0,
+            thirst: 32.0,
+            hunger: 31.0,
             movement_speed: 30.0,
         },
         Target {

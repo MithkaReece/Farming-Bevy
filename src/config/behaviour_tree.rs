@@ -1,7 +1,4 @@
-use std::{
-    collections::{HashMap, VecDeque},
-    thread::current,
-};
+use std::collections::VecDeque;
 
 #[derive(Clone)]
 pub struct BT<A, C> {
@@ -12,7 +9,7 @@ pub struct BT<A, C> {
 impl<A, C: Clone + std::fmt::Debug + Eq + PartialEq> BT<A, C> {
     pub fn new(bt: BehaviourTreeNode<A, C>) -> Self {
         //TODO: Traverse bt to fill in conditions in blackboard
-        println!("Start traversal");
+        // println!("Start traversal");
         let mut conditions = VecDeque::new();
         bt.retrieve_conditions(&mut conditions);
         println!("{:?}", conditions);
@@ -82,7 +79,7 @@ impl<A, C: Clone + std::fmt::Debug + Eq + PartialEq> BehaviourTreeNode<A, C> {
         F: FnMut(&mut A) -> Status,
     {
         if blackboard.should_reset() {
-            return self.reset_and_execute(action_mapper, blackboard)
+            return self.reset_and_execute(action_mapper, blackboard);
         }
 
         fn inner_execute<A, C: Eq + PartialEq, F>(
@@ -163,12 +160,10 @@ impl<A, C: Clone + std::fmt::Debug + Eq + PartialEq> BehaviourTreeNode<A, C> {
             }
         }
 
-        blackboard.reset_condition_counter();
         inner_execute(self, &mut action_mapper, &mut blackboard)
     }
 
-
-    // Only difference is current_child_index is always set to 0 rather 
+    // Only difference is current_child_index is always set to 0 rather
     // than the saved value
     pub fn reset_and_execute<F>(
         &mut self,
@@ -179,7 +174,8 @@ impl<A, C: Clone + std::fmt::Debug + Eq + PartialEq> BehaviourTreeNode<A, C> {
         F: FnMut(&mut A) -> Status,
     {
         // Flip off the reset so next iteration is normal execute
-        blackboard.has_reset(); 
+        blackboard.has_reset();
+        blackboard.reset_condition_counter();
 
         fn inner_execute<A, C: Eq + PartialEq, F>(
             node: &mut BehaviourTreeNode<A, C>,

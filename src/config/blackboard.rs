@@ -21,8 +21,12 @@ impl<C> ConditionRef<C> {
     }
 
     pub fn get_state_with_inversion(&self) -> bool {
-      self.state ^ self.is_inverted //XOR (so inverted flips the state)
-  }
+        self.state ^ self.is_inverted //XOR (so inverted flips the state)
+    }
+
+    pub fn get_invert(&self) -> bool {
+        self.is_inverted
+    }
 
     //Flips is_inverted
     pub fn invert(&mut self) {
@@ -77,15 +81,29 @@ impl<C: Eq + PartialEq> Blackboard<C> {
             .enumerate()
             .find(|(_, condition_ref)| &condition_ref.condition == condition)
         {
-          found_condition_ref.state = new_state;
+            // println!(
+            //     "{:?} < {:?}, {:?}",
+            //     index,
+            //     self.condition_counter,
+            //     !found_condition_ref.get_state_with_inversion()
+            // );
 
-          // If the state after inversions is false assuming it is in a selector
-          // This means the next child needs executing
-          // Therefore need to re-evaluate
-          if index < self.condition_counter && !found_condition_ref.get_state_with_inversion() {
-              self.should_reset = true;
-          }
-            
+            // If higher priority condition
+            // And new state after inversion is false -> causes selector to try next child
+            // And the state is changing
+
+            let is_invert = found_condition_ref.get_invert();
+            let new_state_with_inversion = is_invert ^ new_state;
+
+            if index < self.condition_counter
+                && !new_state_with_inversion
+                && new_state != found_condition_ref.state
+            {
+                self.should_reset = true;
+                println!("Reset");
+            }
+
+            found_condition_ref.state = new_state;
         }
     }
 
@@ -93,7 +111,7 @@ impl<C: Eq + PartialEq> Blackboard<C> {
         self.should_reset = false;
     }
 
-    pub fn should_reset(&self) -> bool{
+    pub fn should_reset(&self) -> bool {
         self.should_reset
     }
 }

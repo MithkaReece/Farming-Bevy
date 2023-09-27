@@ -19,17 +19,8 @@ pub fn animal_ai(
         let bt = &mut bt.0;
 
         bt.execute(&mut |action| match action {
-            // Thirsty => {
-            //     if animal.thirst < 30.0 {
-            //         println!("Thirsty");
-            //         Success
-            //     } else {
-            //         println!("Not Thirsty");
-            //         Failure
-            //     }
-            // }
             DrinkWater => {
-                println!("Drink waters");
+                // println!("Drink water");
                 // if try_drink() {
                 Failure
                 // } else {
@@ -37,24 +28,32 @@ pub fn animal_ai(
                 // }
             }
             GoToWater => {
-                println!("Go to water");
-                Running
+                // Needs memory setup (therefore herd setup)
+                // println!("Go to water");
+                Failure
             }
             LookForWater => {
-                println!("Look for food");
-                Success
+                println!("Look for water");
+                move_towards_target(
+                    &mut transform,
+                    &target,
+                    animal.movement_speed,
+                    time.delta_seconds(),
+                );
+                Running
             }
             EatFood => {
-                println!("Eat food");
-                Success
+                // println!("Eat food");
+                Failure
             }
             GoToFood => {
-                println!("Go to food");
-                Success
+                // Needs memory setup (therefore herd setup)
+                // println!("Go to food");
+                Failure
             }
             LookForFood => {
                 println!("Look for food");
-                Success
+                Running
             }
             Breed => {
                 println!("Breed");
@@ -71,8 +70,8 @@ pub fn animal_ai(
                     animal.movement_speed,
                     time.delta_seconds(),
                 );
-                println!("Wander");
-                Success
+                //println!("Wander");
+                Running
             }
         });
 
