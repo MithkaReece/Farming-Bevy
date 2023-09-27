@@ -5,6 +5,7 @@ use crate::{
     resources::{ScalingFactor, TilemapInfo},
 };
 
+
 pub fn character_movement(
     mut players: Query<(&mut Transform, &mut Player)>,
     input: Res<Input<KeyCode>>,

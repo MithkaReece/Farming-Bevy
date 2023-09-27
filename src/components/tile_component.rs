@@ -8,13 +8,25 @@ pub struct PlantData {
     pub max_stage: usize,
     pub growth_timer: Timer,
 }
-#[derive(Debug, Component, Clone)]
+#[derive(Debug, Component, Clone, Copy)]
 pub struct FenceData {}
 
-#[derive(Debug, Component, Clone)]
+#[derive(Debug, Component, Clone, Copy)]
 pub enum CollisionType {
     Fence(FenceData),
 }
+
+impl PartialEq for CollisionType {
+    fn eq(&self, other: &Self) -> bool {
+        match &self {
+            CollisionType::Fence(_) => match other {
+                CollisionType::Fence(_) => true,
+                _ => false,
+            },
+        }
+    }
+}
+impl Eq for CollisionType {} 
 
 // Define an enum to represent tile types
 #[derive(Component, Debug, Clone)]

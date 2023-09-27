@@ -67,15 +67,19 @@ pub fn plant_seed(
     }
 
     // Set object tile to selected seed
-    let ItemType::Seed(seed) = selected_item_type;
-    let new_tile = Tile::Seed(
-        seed,
-        PlantData {
-            stage: 0,
-            max_stage: 4,
-            growth_timer: Timer::from_seconds(1.0, TimerMode::Repeating),
-        },
-    );
+    let new_tile = match selected_item_type {
+        ItemType::Seed(seed_type) => {
+            Tile::Seed(
+                seed_type,
+                PlantData {
+                    stage: 0,
+                    max_stage: 4,
+                    growth_timer: Timer::from_seconds(1.0, TimerMode::Repeating),
+                },
+            )
+        }
+        _ => return
+    };
     // println!("Planted{:?}", &new_tile);
     match tilemap.set_tile_with_layer(&chunk_pos, Layer::Object, &tile_pos, new_tile) {
         Ok(_) => println!("Hoe ground"),

@@ -15,9 +15,6 @@ use resources::*;
 use systems::*;
 
 fn main() {
-    let mut schedule = Schedule::default();
-    schedule.add_systems((give_seeds, setup_inventory.before(give_seeds)));
-
     App::new()
         .add_plugins(
             DefaultPlugins
@@ -33,10 +30,9 @@ fn main() {
                 })
                 .build(),
         )
-        .add_plugins(PixelCameraPlugin)
-        .add_plugins(
-            WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::Escape)),
-        )
+        // .add_plugins(
+        //     WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::Escape)),
+        // )
         .insert_resource(ScalingFactor {
             factor: 4.0,
             tile_size: 16,
@@ -50,49 +46,8 @@ fn main() {
             farm: Default::default(),
             plants: Default::default(),
         })
-        .add_systems(
-            Startup,
-            (
-                setup_textures,
-                setup_camera,
-                setup_player,
-                setup_tilemap,
-                setup_inventory,
-                // spawn_inventory_ui,
-            ),
-        )
-        .add_systems(
-            Update,
-            (
-                camera_follow,
-                character_movement,
-                plant_seed.before(hoe_ground),
-                hoe_ground,
-                spawn_sheep,
-                sheep_lifetime,
-                animal_target_setter,
-                sheep_movement,
-                tile_hover,
-                sync_tile_visual,
-                give_seeds,
-                plant_growth,
-                harvest_plant,
-                chunk_loading,
-                update_animal_blackboard,
-                animal_ai,
-                animal_stats,
-                // ui_inventory,
-            ),
-        )
+        .add_plugins(SystemsPlugin)
         .run()
-}
-
-fn setup_camera(mut commands: Commands) {
-    commands.spawn(PixelCameraBundle::from_resolution(
-        (1650.0 * 0.8) as i32,
-        (1050.0 * 0.8) as i32,
-        true,
-    ));
 }
 
 fn give_seeds(mut query: Query<&mut Inventory>, input: Res<Input<KeyCode>>) {

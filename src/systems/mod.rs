@@ -1,43 +1,29 @@
-pub mod animal_ai_systems;
-pub mod animal_stats_system;
-pub mod animal_target_setter_system;
-pub mod camera_follow_system;
-pub mod character_movement_system;
-pub mod chunk_loading_system;
-pub mod fence_place_system;
-pub mod harvest_plant_system;
-pub mod hoe_ground_system;
-pub mod plant_growth_system;
-pub mod plant_seed_system;
-pub mod setup_inventory;
-pub mod setup_player;
-pub mod setup_textures;
-pub mod setup_tilemap;
-pub mod sheep_lifetime_system;
-pub mod sheep_movement_system;
-pub mod spawn_sheep_system;
-pub mod sync_tile_visual_system;
-pub mod tile_hover_system;
-pub mod update_animal_blackboard_system;
+pub mod player;
+pub mod resources;
+pub mod animals;
+pub mod camera;
+pub mod ui;
+pub mod tilemap;
 
-pub use animal_ai_systems::*;
-pub use animal_stats_system::*;
-pub use animal_target_setter_system::*;
-pub use camera_follow_system::*;
-pub use character_movement_system::*;
-pub use chunk_loading_system::*;
-pub use fence_place_system::*;
-pub use harvest_plant_system::*;
-pub use hoe_ground_system::*;
-pub use plant_growth_system::*;
-pub use plant_seed_system::*;
-pub use setup_inventory::*;
-pub use setup_player::*;
-pub use setup_textures::*;
-pub use setup_tilemap::*;
-pub use sheep_lifetime_system::*;
-pub use sheep_movement_system::*;
-pub use spawn_sheep_system::*;
-pub use sync_tile_visual_system::*;
-pub use tile_hover_system::*;
-pub use update_animal_blackboard_system::*;
+pub use animals::*;
+pub use camera::*;
+pub use player::*;
+pub use resources::*;
+pub use tilemap::*;
+pub use ui::*;
+
+use bevy::prelude::*;
+
+pub struct SystemsPlugin;
+impl Plugin for SystemsPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_plugins((
+            PlayerPlugin,
+            TilemapPlugin,
+            AnimalsPlugin,
+            CameraPlugin,
+            UiPlugin,
+            ResourcesPlugin,
+        ));
+    }
+}
