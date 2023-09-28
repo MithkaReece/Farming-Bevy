@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, sprite::collide_aabb::Collision};
 
 use super::item_component::SeedType;
 
@@ -14,6 +14,14 @@ pub struct FenceData {}
 #[derive(Debug, Component, Clone, Copy)]
 pub enum CollisionType {
     Fence(FenceData),
+}
+
+impl CollisionType {
+    pub fn get_name(&self)->String{
+        match self {
+            CollisionType::Fence(_) => {"Fence".to_string()}
+        }
+    }
 }
 
 impl PartialEq for CollisionType {
