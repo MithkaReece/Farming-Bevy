@@ -3,7 +3,6 @@ use bevy::prelude::*;
 use crate::{
     components::{item_component::ItemType, Inventory, PlantData, Player, Tile, Tilemap},
     config::layer_enum::Layer,
-    // systems::{get_ground_tile, get_object_tile_mut},
     resources::ScalingFactor,
 };
 
@@ -25,10 +24,10 @@ pub fn plant_seed(
         println!("No selected item");
         return;
     }
-    let selected_item_type = selected_item_type_option.unwrap();
+    let selected_item = selected_item_type_option.unwrap();
 
     // Check item is seed
-    if !matches!(selected_item_type, ItemType::Seed(_)) {
+    if !matches!(selected_item.item_type, ItemType::Seed(_)) {
         println!("Item is not seed");
         return;
     }
@@ -67,7 +66,7 @@ pub fn plant_seed(
     }
 
     // Set object tile to selected seed
-    let new_tile = match selected_item_type {
+    let new_tile = match selected_item.item_type {
         ItemType::Seed(seed_type) => {
             Tile::Seed(
                 seed_type,
@@ -85,5 +84,5 @@ pub fn plant_seed(
         Ok(_) => println!("Hoe ground"),
         Err(e) => println!("{e}"),
     }
-    inventory.remove(selected_item_type);
+    inventory.remove_selected();
 }

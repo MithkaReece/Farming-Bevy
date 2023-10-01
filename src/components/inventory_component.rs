@@ -3,19 +3,14 @@ use bevy::prelude::*;
 use crate::item_component::ItemType;
 
 #[derive(Debug)]
-pub struct ItemInfo {
+pub struct ItemRef {
     pub item_type: ItemType,
     pub counter: usize,
-}
-#[derive(Debug)]
-pub enum ItemRef {
-    None,
-    Item(ItemInfo),
 }
 
 #[derive(Component)]
 pub struct Inventory {
-    pub items: Vec<ItemRef>,
+    pub items: Vec<Option<ItemRef>>,
     pub selected_index: usize,
 }
 
@@ -23,7 +18,7 @@ impl Inventory {
     pub fn new(size: usize) -> Self {
         let mut items = Vec::new();
         for _ in 0..size {
-            items.push(ItemRef::None);
+            items.push(None);
         }
         Self {
             items,
@@ -33,15 +28,15 @@ impl Inventory {
 
     pub fn add(&mut self, item_type: ItemType) -> bool {
         if let Some(item_ref_found) = self.items.iter_mut().find(|item_ref| match item_ref {
-            ItemRef::None => false,
-            ItemRef::Item(item_info) => item_type == item_info.item_type,
+            None => false,
+            Some(item_info) => item_type == item_info.item_type,
         }) {
             match item_ref_found {
-                ItemRef::None => {
+                None => {
                     println!("inventory component.add should never happen");
                     false
                 }
-                ItemRef::Item(item_info) => {
+                Some(item_info) => {
                     item_info.counter += 1;
                     println!("Item added (mul)");
                     true
@@ -53,8 +48,8 @@ impl Inventory {
             // Put item into first empty spots
             for item in &mut self.items {
                 match item {
-                    ItemRef::None => {
-                        *item = ItemRef::Item(ItemInfo {
+                    None => {
+                        *item = Some(ItemRef {
                             item_type,
                             counter: 1,
                         });
@@ -72,20 +67,21 @@ impl Inventory {
 
     pub fn remove(&mut self, item_type: ItemType) -> bool {
         if let Some((item_ref_found)) = self.items.iter_mut().find(|(item_ref)| match item_ref {
-            ItemRef::None => false,
-            ItemRef::Item(item_info) => item_type == item_info.item_type,
+            None => false,
+            Some(item_info) => item_type == item_info.item_type,
         }) {
             match item_ref_found {
-                ItemRef::None => {
+                None => {
                     println!("inventory component.add should never happen");
                     false
                 }
-                ItemRef::Item(item_info) => {
+                Some(item_info) => {
                     if item_info.counter > 0 {
                         item_info.counter -= 1;
                         // Remove item when counter get to 0
                         if item_info.counter <= 0 {
-                            *item_ref_found = ItemRef::None;
+                            *item_ref_found = None;
+                            self.select_next_item_right();
                         }
                         true
                     } else {
@@ -99,31 +95,86 @@ impl Inventory {
         }
     }
 
+    pub fn remove_selected(&mut self) -> bool {
+        if let Some(selected_item) = self.get_selected_item() {
+            self.remove(selected_item.item_type)
+        }else{
+            false
+        }
+    }
+
     pub fn get_number(&self, item_type: ItemType) -> usize {
         if let Some(item_ref_found) = self.items.iter().find(|item_ref| match item_ref {
-            ItemRef::None => false,
-            ItemRef::Item(item_info) => item_type == item_info.item_type,
+            None => false,
+            Some(item_info) => item_type == item_info.item_type,
         }) {
             match item_ref_found {
-                ItemRef::None => {
+                None => {
                     println!("inventory component.add should never happen");
                     0
                 }
-                ItemRef::Item(item_info) => item_info.counter,
+                Some(item_info) => item_info.counter,
             }
         } else {
             0
         }
     }
 
-    pub fn get_selected_item(&self) -> Option<ItemType> {
-        if self.items.len() > self.selected_index {
-            match &self.items[self.selected_index] {
-                ItemRef::None => None,
-                ItemRef::Item(item_info) => Some(item_info.item_type.clone()),
-            }
+    pub fn get_selected_item(&self) -> Option<&ItemRef> {
+        if self.selected_index < self.items.len() {
+            return self.items[self.selected_index].as_ref()
         } else {
             None
+        }
+    }
+
+    pub fn get_at(&self, index: usize) -> Option<&ItemRef>{
+        if index < self.items.len() {
+            self.items[index].as_ref()
+        }else{
+            None
+        }
+    }
+
+    pub fn select_next_item_right(&mut self) {
+        for i in (self.selected_index + 1)..self.items.len() {
+            match self.items[i] {
+                None => {}
+                Some(_) => {
+                    self.selected_index = i;
+                    return;
+                }
+            }
+        }
+        for i in 0..(self.selected_index + 1) {
+            match self.items[i] {
+                None => {}
+                Some(_) => {
+                    self.selected_index = i;
+                    return;
+                }
+            }
+        }
+    }
+
+    pub fn select_next_item_left(&mut self) {
+        for i in (0..self.selected_index).rev() {
+            match self.items[i] {
+                None => {}
+                Some(_) => {
+                    self.selected_index = i;
+                    return;
+                }
+            }
+        }
+        for i in ((self.selected_index + 1)..self.items.len()).rev() {
+            match self.items[i] {
+                None => {}
+                Some(_) => {
+                    self.selected_index = i;
+                    return;
+                }
+            }
         }
     }
 }
