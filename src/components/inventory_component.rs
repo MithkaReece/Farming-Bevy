@@ -12,6 +12,7 @@ pub struct ItemRef {
 pub struct Inventory {
     pub items: Vec<Option<ItemRef>>,
     pub selected_index: usize,
+    visible: bool,
 }
 
 impl Inventory {
@@ -23,6 +24,7 @@ impl Inventory {
         Self {
             items,
             selected_index: 0,
+            visible: false,
         }
     }
 
@@ -177,4 +179,14 @@ impl Inventory {
             }
         }
     }
+
+    pub fn toggle_visibility(&mut self){
+        self.visible = !self.visible;
+    }
+
+    pub fn get_visiblity(&self) -> bool{
+        self.visible
+    }
+
+    
 }

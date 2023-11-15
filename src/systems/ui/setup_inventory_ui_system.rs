@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::components::InventoryCell;
+use crate::components::{InventoryCell, InventoryUi};
 
 pub fn setup_inventory_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
     // Spawn a grid
@@ -12,7 +12,7 @@ pub fn build_inventory_ui(commands: &mut Commands, asset_server: Res<AssetServer
     //let item_texture_handle = asset_server.load("item_texture.png");
 
     let inventory_ui_entity = commands
-        .spawn(NodeBundle {
+        .spawn((NodeBundle {
             style: Style {
                 display: Display::Flex,
                 width: Val::Percent(100.0),
@@ -26,10 +26,11 @@ pub fn build_inventory_ui(commands: &mut Commands, asset_server: Res<AssetServer
                 green: 0.0,
                 blue: 0.0,
                 alpha: 0.0,
-            }
-            .into(),
+            }.into(),
             ..default()
-        })
+        },
+        InventoryUi
+        ))
         .with_children(|builder| {
             let rows = 4;
             let columns = 10;

@@ -15,6 +15,7 @@ pub fn tile_hover(
     let tilemap = tilemap.single();
     let chunk_size = tilemap.chunk_size as u32;
 
+    //Find chunk and tile position given a real-world coordinate
     let (chunk_pos, tile_pos) = tilemap.from_pos_no_layer(
         &player.single().looking_location,
         scaling_factor.get_full_factor(),
@@ -22,7 +23,9 @@ pub fn tile_hover(
 
     for (chunk_x, row) in tilemap.chunks.iter().enumerate() {
         for (chunk_y, col) in row.iter().enumerate() {
+            //TODO: Should just be able to take out the ground layer instead of iterating
             for (chunk_z, chunk) in col.iter().enumerate() {
+                // Only consider ground layer
                 if chunk_z != Layer::Ground as usize {
                     continue;
                 }
@@ -34,6 +37,7 @@ pub fn tile_hover(
                                 Some(entity) => entity,
                                 None => continue,
                             };
+                            // Highlight tile if matches highlighted position
                             if let Ok(mut sprite) = tile_entities.get_mut(*entity) {
                                 if x == tile_pos.x && y == tile_pos.y {
                                     sprite.color = Color::Rgba {
@@ -49,9 +53,9 @@ pub fn tile_hover(
                         }
                     }
                 } else {
-                    for _ in 0..chunk_size as u32 {
-                        for _ in 0..chunk_size as u32 {
-                            let entity = match chunk.get_tile_entity(&tile_pos) {
+                    for y in 0..chunk_size as u32 {
+                        for x in 0..chunk_size as u32 {
+                            let entity = match chunk.get_tile_entity(&UVec2::new(x, y)) {
                                 Some(entity) => entity,
                                 None => continue,
                             };
