@@ -42,8 +42,8 @@ pub enum Tile {
 impl Tile {
     pub fn get_group_name(&self) -> String {
         match self {
-            Tile::Ground(ground_type) => "Ground".to_string(),
-            Tile::Plant(plant_type,_) =>  "Plant".to_string(),
+            Tile::Ground(_) => "Ground".to_string(),
+            Tile::Plant(_,_) =>  "Plant".to_string(),
         }
     }
 
@@ -115,20 +115,10 @@ impl PartialEq for Tile {
 }
 
 impl Tile {
-    pub fn get_index(&self) -> usize {
+    pub fn apply_index(&self, index:usize) -> usize {
         match &self {
-            Tile::Ground(ground_type) => match ground_type {
-                GroundType::Grass => 161,
-                GroundType::Hoed => 129,
-                GroundType::Water => 73,
-            }
-
-            Tile::Plant(plant_type, plant) => match plant_type {
-                PlantType::Pumpkin => 0 + plant.stage,
-                PlantType::Carrot => 5 + plant.stage,
-                PlantType::Potato => 10 + plant.stage,
-                PlantType::Tomato => 15 + plant.stage,
-            },
+            Tile::Plant(_, plant_data) => index + plant_data.stage,
+            _ => index
         }
     }
 }

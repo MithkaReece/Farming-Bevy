@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    components::{Tile, Tilemap},
+    components::Tilemap,
     resources::{texture_atlas_handle_resource::TextureAtlasHandle, tile_info_resource::TilesData},
 };
 
@@ -47,8 +47,6 @@ pub fn sync_tile_visual(
                         if let Ok((mut atlas_handle, mut sprite, mut visibility)) =
                             tile_entities.get_mut(*entity)
                         {
-
-                            sprite.index = tile.get_index();
                             // Updates visiblity
                             *visibility =  Visibility::Inherited;
 
@@ -61,6 +59,8 @@ pub fn sync_tile_visual(
                                         "plants" => saved_atlas_handles.plants.clone(),
                                         _ =>  Default::default()
                                     };
+
+                                    sprite.index = tile.apply_index(tile_data.sprite_index);
                                 }
                                 None => { println!("can't find spritesheet for tile {:?}", tile)}
                             }
