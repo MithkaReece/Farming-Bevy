@@ -5,14 +5,14 @@ use crate::components::tile_component::Tile;
 #[derive(Component, Clone)]
 pub struct Chunk {
     pub chunk_size: usize,
-    pub tiles: Vec<Vec<Tile>>,
+    pub tiles: Vec<Vec<Option<Tile>>>,
     pub is_loaded: bool,
     pub tile_entities: Vec<Vec<Option<Entity>>>,
 }
 
 impl Chunk {
     pub fn new(chunk_size: usize) -> Self {
-        let tiles = vec![vec![Tile::None; chunk_size]; chunk_size];
+        let tiles = vec![vec![None; chunk_size]; chunk_size];
 
         Chunk {
             chunk_size,
@@ -24,10 +24,10 @@ impl Chunk {
 
     pub fn get_tile(&self, tile_pos: &UVec2) -> Option<&Tile> {
         if tile_pos.x >= self.chunk_size as u32 || tile_pos.y >= self.chunk_size as u32 {
-            println!("invalid tile_pos");
+            println!("Tried to get a tile outside the chunk");
             None
         } else {
-            Some(&self.tiles[tile_pos.x as usize][tile_pos.y as usize])
+            self.tiles[tile_pos.x as usize][tile_pos.y as usize].as_ref()
         }
     }
 
@@ -35,7 +35,7 @@ impl Chunk {
         if tile_pos.x >= self.chunk_size as u32 || tile_pos.y >= self.chunk_size as u32 {
             None
         } else {
-            Some(&mut self.tiles[tile_pos.x as usize][tile_pos.y as usize])
+            self.tiles[tile_pos.x as usize][tile_pos.y as usize].as_mut()
         }
     }
 
@@ -43,7 +43,7 @@ impl Chunk {
         if tile_pos.x >= self.chunk_size as u32 || tile_pos.y >= self.chunk_size as u32 {
             Err("Setting tile in out of bounds tile pos".to_string())
         } else {
-            self.tiles[tile_pos.x as usize][tile_pos.y as usize] = new_tile;
+            self.tiles[tile_pos.x as usize][tile_pos.y as usize] = Some(new_tile);
             Ok(())
         }
     }
@@ -72,12 +72,9 @@ impl Chunk {
 
         for row in 0..self.chunk_size {
             for col in 0..self.chunk_size {
-                let tile = match self.get_tile(&UVec2::new(col as u32, row as u32)) {
-                    Some(tile) => tile,
-                    None => {
-                        println!("Chunk loading: could not find tile ({col}, {row})");
-                        return;
-                    }
+                let visibility = match self.get_tile(&UVec2::new(col as u32, row as u32)) {
+                    Some(tile) => Visibility::Inherited,
+                    None => Visibility::Hidden
                 };
 
                 let real_tile_pos = Vec3::new(
@@ -85,11 +82,6 @@ impl Chunk {
                     real_chunk_pos.y + row as f32,
                     chunk_layer as f32,
                 ) * full_scaling_factor;
-
-                let visibility = match tile {
-                    Tile::None => Visibility::Hidden,
-                    _ => Visibility::Inherited,
-                };
 
                 let entity = commands
                     .spawn((

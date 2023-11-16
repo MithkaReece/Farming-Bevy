@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    components::{item_component::ItemType, Inventory, PlantData, Player, Tile, Tilemap},
+    components::{item_component::ItemType, Inventory, PlantData, Player, Tile, Tilemap, GroundType},
     config::layer_enum::Layer,
     resources::ScalingFactor,
 };
@@ -42,7 +42,7 @@ pub fn plant_seed(
     // Check ground is hoed
     match tilemap.get_tile_with_layer(&chunk_pos, Layer::Ground, &tile_pos) {
         Some(ground_tile) => {
-            if ground_tile != &Tile::Hoed {
+            if *ground_tile != Tile::Ground(GroundType::Hoed) {
                 return;
             }
         }
@@ -53,27 +53,21 @@ pub fn plant_seed(
     }
 
     // Check object tile is empty
-    match tilemap.get_tile_with_layer(&chunk_pos, Layer::Object, &tile_pos) {
-        Some(object_tile) => {
-            if object_tile != &Tile::None {
-                return;
-            }
-        }
-        None => {
-            println!("Not on object tile (plant_seed_systems");
-            return;
-        }
+    if tilemap.get_tile_with_layer(&chunk_pos, Layer::Object, &tile_pos) != None {
+        println!("Not on object tile (plant_seed_systems");
+        return;
     }
 
     // Set object tile to selected seed
     let new_tile = match selected_item.item_type {
         ItemType::Seed(seed_type) => {
-            Tile::Seed(
+            Tile::Plant(
                 seed_type,
                 PlantData {
                     stage: 0,
                     max_stage: 4,
                     growth_timer: Timer::from_seconds(1.0, TimerMode::Repeating),
+                    worth: 0.0,
                 },
             )
         }

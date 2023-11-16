@@ -100,7 +100,7 @@ fn item_rect(builder: &mut ChildBuilder, color: Color, font: &Handle<Font>) {
 
 //System
 fn ui_inventory(mut query: Query<&mut Text, With<InventoryCell>>) {
-    for (mut text) in &mut query {
+    for mut text in &mut query {
         println!("Test");
         text.sections[0].value = "Test".to_string();
         // Turn the text purple

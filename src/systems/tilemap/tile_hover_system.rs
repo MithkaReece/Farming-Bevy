@@ -21,6 +21,8 @@ pub fn tile_hover(
         scaling_factor.get_full_factor(),
     );
 
+    
+
     for (chunk_x, row) in tilemap.chunks.iter().enumerate() {
         for (chunk_y, col) in row.iter().enumerate() {
             //TODO: Should just be able to take out the ground layer instead of iterating

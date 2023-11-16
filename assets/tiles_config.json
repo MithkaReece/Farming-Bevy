@@ -1,0 +1,40 @@
+{
+    "tiles":{
+        "Ground":[
+            {
+                "type": "Grass",
+                "spritesheet": "farm_tilemap",
+                "sprite_index": 161
+            },
+            {
+                "type": "Hoed",
+                "spritesheet": "farm_tilemap",
+                "sprite_index": 129
+            },
+            {
+                "type": "Water",
+                "spritesheet": "farm_tilemap",
+                "sprite_index": 73
+            }
+        ],
+        "Plant":[
+            {
+                "type": "Pumpkin",
+                "spritesheet": "plants",
+                "sprite_index": 0
+            },{
+                "type": "Carrot",
+                "spritesheet": "plants",
+                "sprite_index": 5
+            },{
+                "type": "Potato",
+                "spritesheet": "plants",
+                "sprite_index": 10
+            },{
+                "type": "Hoed",
+                "spritesheet": "plants",
+                "sprite_index": 15
+            }
+        ]
+    }
+}

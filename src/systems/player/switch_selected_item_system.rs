@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::components::{Inventory, item_component::{ItemType, SeedType}};
+use crate::components::Inventory;
 
 pub fn switch_selected_item(mut query: Query<&mut Inventory>, input: Res<Input<KeyCode>>) {
   let mut inv = query.single_mut();

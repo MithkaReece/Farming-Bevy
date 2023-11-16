@@ -8,7 +8,7 @@ use crate::{
 #[derive(Component)]
 pub struct Tilemap {
     pub dimensions: UVec3,
-    pub chunk_size: usize,
+    pub chunk_size: usize, //No. tiles of a chunk width/height
     pub chunks: Vec<Vec<Vec<Chunk>>>,
 }
 

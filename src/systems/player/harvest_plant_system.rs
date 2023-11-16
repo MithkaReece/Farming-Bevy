@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    components::{item_component::SeedType, Player, Tile, Tilemap},
+    components::{Player, Tile, Tilemap, PlantType},
     config::layer_enum::Layer,
     resources::{money_resource::Money, ScalingFactor},
 };
@@ -37,7 +37,7 @@ pub fn harvest_plant(
 
     // Pattern match plant object and collect + sell
     match object_tile {
-        Tile::Seed(seed_type, ref mut plant) => {
+        Tile::Plant(plant_type, ref mut plant) => {
             if plant.stage != plant.max_stage {
                 return;
             }
@@ -45,20 +45,20 @@ pub fn harvest_plant(
             plant.growth_timer.reset();
             plant.stage = 1;
             // Map seed_type to money
-            match seed_type {
-                SeedType::Pumpkin => {
+            match plant_type {
+                PlantType::Pumpkin => {
                     money.0 += 5.0;
                     println!("Money: {:?}", money.0);
                 }
-                SeedType::Carrot => {
+                PlantType::Carrot => {
                     money.0 += 5.0;
                     println!("Money: {:?}", money.0);
                 }
-                SeedType::Potato => {
+                PlantType::Potato => {
                     money.0 += 5.0;
                     println!("Money: {:?}", money.0);
                 }
-                SeedType::Tomato => {
+                PlantType::Tomato => {
                     money.0 += 5.0;
                     println!("Money: {:?}", money.0);
                 }

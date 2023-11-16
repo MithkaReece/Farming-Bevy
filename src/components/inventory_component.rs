@@ -68,7 +68,7 @@ impl Inventory {
     }
 
     pub fn remove(&mut self, item_type: ItemType) -> bool {
-        if let Some((item_ref_found)) = self.items.iter_mut().find(|(item_ref)| match item_ref {
+        if let Some(item_ref_found) = self.items.iter_mut().find(|item_ref| match item_ref {
             None => false,
             Some(item_info) => item_type == item_info.item_type,
         }) {

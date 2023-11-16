@@ -30,7 +30,7 @@ pub fn plant_growth(
                         };
 
                         match tile {
-                            Tile::Seed(_, ref mut plant) => {
+                            Tile::Plant(_, ref mut plant) => {
                                 plant.growth_timer.tick(time.delta());
                                 //println!("{:?}", plant.time_since_stage);
                                 if !plant.growth_timer.finished() {
