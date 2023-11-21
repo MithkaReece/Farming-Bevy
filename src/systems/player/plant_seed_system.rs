@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    components::{item_component::ItemType, Inventory, PlantData, Player, Tile, Tilemap, GroundType},
+    components::{item_component::ItemType, Inventory, PlantData, Player, TileType, Tilemap, GroundType, Tile},
     config::layer_enum::Layer,
     resources::ScalingFactor,
 };
@@ -42,7 +42,7 @@ pub fn plant_seed(
     // Check ground is hoed
     match tilemap.get_tile_with_layer(&chunk_pos, Layer::Ground, &tile_pos) {
         Some(ground_tile) => {
-            if *ground_tile != Tile::Ground(GroundType::Hoed) {
+            if ground_tile.tile_type != TileType::Ground(GroundType::Hoed) {
                 return;
             }
         }
@@ -60,17 +60,18 @@ pub fn plant_seed(
 
     // Set object tile to selected seed
     let new_tile = match selected_item.item_type {
-        ItemType::Seed(seed_type) => {
-            Tile::Plant(
-                seed_type,
+        ItemType::Seed(plant_type) => Tile {
+            tile_type: TileType::Plant(
+                plant_type,
                 PlantData {
                     stage: 0,
                     max_stage: 4,
                     growth_timer: Timer::from_seconds(1.0, TimerMode::Repeating),
                     worth: 0.0,
                 },
-            )
-        }
+            ),
+            has_collision: false
+        },
         _ => return
     };
     // println!("Planted{:?}", &new_tile);

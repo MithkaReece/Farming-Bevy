@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    components::{Tile, Tilemap, GroundType},
+    components::{TileType, Tilemap, GroundType, Tile},
     resources::{TilemapInfo, tile_info_resource::TilesData},
 };
 
@@ -36,13 +36,19 @@ pub fn setup_tilemap(
                     ]);
 
                     //println!("{val}");
-                    let tile_type = if val > 0.0 { Tile::Ground(GroundType::Grass) } else { Tile::Ground(GroundType::Water) };
+                    let tile = if val > 0.0 { Tile{
+                            tile_type: TileType::Ground(GroundType::Grass),
+                            has_collision: false
+                        }} else { Tile{
+                            tile_type: TileType::Ground(GroundType::Water),
+                            has_collision: true
+                        }};
 
 
                     match tilemap.set_tile(
                         &UVec3::new(chunk_x, chunk_y, 0),
                         &UVec2::new(col, row),
-                        tile_type
+                        tile
                         ) {
                             Err(e) => println!("{e}"),
                             Ok(()) => {},

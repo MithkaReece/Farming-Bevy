@@ -7,6 +7,7 @@ pub fn sync_inventory_ui(
     mut inventory_cells: Query<&mut Text, With<InventoryCell>>,
     inventory: Query<&Inventory>,
 ) {
+    
     let inventory = inventory.single();
 
     if !inventory.get_visiblity() {

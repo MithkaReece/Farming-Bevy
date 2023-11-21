@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    components::{Player, Tile, Tilemap, PlantType},
+    components::{Player, TileType, Tilemap, PlantType},
     config::layer_enum::Layer,
     resources::{money_resource::Money, ScalingFactor},
 };
@@ -30,14 +30,14 @@ pub fn harvest_plant(
     ) {
         Some(tile) => tile,
         None => {
-            println!("Harvest can't find tile");
+            //println!("Harvest can't find tile");
             return;
         }
     };
 
     // Pattern match plant object and collect + sell
-    match object_tile {
-        Tile::Plant(plant_type, ref mut plant) => {
+    match object_tile.tile_type {
+        TileType::Plant(plant_type, ref mut plant) => {
             if plant.stage != plant.max_stage {
                 return;
             }

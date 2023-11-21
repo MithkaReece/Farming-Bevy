@@ -98,7 +98,7 @@ impl Chunk {
                             "({},{},{})",
                             real_tile_pos.x, real_tile_pos.y, chunk_layer
                         )),
-                    ))
+                    ),)
                     .id();
                 self.tile_entities[col][row] = Some(entity);
             }

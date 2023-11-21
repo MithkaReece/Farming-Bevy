@@ -31,29 +31,63 @@ impl PartialEq for CollisionType {
 }
 impl Eq for CollisionType {} */
 
-// Define an enum to represent tile types
 #[derive(Component, Debug, Clone)]
-pub enum Tile {
-    Ground(GroundType),
-    Plant(PlantType, PlantData),
-    //Collision(CollisionType),
+pub struct Tile {
+    pub tile_type: TileType,
+    pub has_collision: bool,
 }
 
-impl Tile {
+impl PartialEq for Tile {
+    fn eq(&self, other: &Self) -> bool {
+        self.tile_type == other.tile_type
+    }
+}
+
+// Define an enum to represent tile types
+#[derive(Component, Debug, Clone)]
+pub enum TileType {
+    Ground(GroundType),
+    Plant(PlantType, PlantData),
+}
+
+impl TileType {
     pub fn get_group_name(&self) -> String {
         match self {
-            Tile::Ground(_) => "Ground".to_string(),
-            Tile::Plant(_,_) =>  "Plant".to_string(),
+            TileType::Ground(_) => "Ground".to_string(),
+            TileType::Plant(_,_) =>  "Plant".to_string(),
         }
     }
 
     pub fn get_type_name(&self) -> String {
         match self {
-            Tile::Ground(ground_type) => ground_type.get_name(),
-            Tile::Plant(plant_type,_) => plant_type.get_name(),
+            TileType::Ground(ground_type) => ground_type.get_name(),
+            TileType::Plant(plant_type,_) => plant_type.get_name(),
+        }
+    }
+
+    pub fn apply_index(&self, index:usize) -> usize {
+        match &self {
+            TileType::Plant(_, plant_data) => index + plant_data.stage,
+            _ => index
         }
     }
 }
+
+impl PartialEq for TileType {
+    fn eq(&self, other: &Self) -> bool {
+        match &self {
+            TileType::Ground(ground_type) => match other {
+                TileType::Ground(ground_type_other) => ground_type == ground_type_other,
+                _ => false,
+            },
+            TileType::Plant(plant_type,_) => match other {
+                TileType::Plant(plant_type_other,_) => plant_type == plant_type_other,
+                _ => false,
+            },
+        }
+    }
+}
+
 
 #[derive(Component, Debug, Clone, PartialEq, Eq)]
 pub enum GroundType {
@@ -99,26 +133,3 @@ pub struct PlantData {
     pub worth: f64,
 }
 
-impl PartialEq for Tile {
-    fn eq(&self, other: &Self) -> bool {
-        match &self {
-            Tile::Ground(ground_type) => match other {
-                Tile::Ground(ground_type_other) => ground_type == ground_type_other,
-                _ => false,
-            },
-            Tile::Plant(plant_type,_) => match other {
-                Tile::Plant(plant_type_other,_) => plant_type == plant_type_other,
-                _ => false,
-            },
-        }
-    }
-}
-
-impl Tile {
-    pub fn apply_index(&self, index:usize) -> usize {
-        match &self {
-            Tile::Plant(_, plant_data) => index + plant_data.stage,
-            _ => index
-        }
-    }
-}

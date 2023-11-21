@@ -51,7 +51,7 @@ pub fn sync_tile_visual(
                             *visibility =  Visibility::Inherited;
 
                             // Map tile to spritesheet
-                            let tile_info = tiles_info.get_tile(tile.get_group_name().as_str(),tile.get_type_name().as_str());
+                            let tile_info = tiles_info.get_tile(tile.tile_type.get_group_name().as_str(),tile.tile_type.get_type_name().as_str());
                             match tile_info {
                                 Some(tile_data) => {
                                     *atlas_handle = match tile_data.spritesheet.as_str() {
@@ -60,7 +60,7 @@ pub fn sync_tile_visual(
                                         _ =>  Default::default()
                                     };
 
-                                    sprite.index = tile.apply_index(tile_data.sprite_index);
+                                    sprite.index = tile.tile_type.apply_index(tile_data.sprite_index);
                                 }
                                 None => { println!("can't find spritesheet for tile {:?}", tile)}
                             }

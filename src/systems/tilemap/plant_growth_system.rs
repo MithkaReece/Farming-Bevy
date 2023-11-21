@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{components::{Tile, Tilemap}, config::layer_enum::Layer};
+use crate::{components::{TileType, Tilemap}, config::layer_enum::Layer};
 
 pub fn plant_growth(
     time: Res<Time>,
@@ -29,8 +29,8 @@ pub fn plant_growth(
                             None => continue
                         };
 
-                        match tile {
-                            Tile::Plant(_, ref mut plant) => {
+                        match tile.tile_type {
+                            TileType::Plant(_, ref mut plant) => {
                                 plant.growth_timer.tick(time.delta());
                                 //println!("{:?}", plant.time_since_stage);
                                 if !plant.growth_timer.finished() {

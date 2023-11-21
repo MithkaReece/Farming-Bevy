@@ -1,0 +1,34 @@
+{
+    "items":[
+        {
+            "type":"pumpkin",
+            "name":"pumpkin seed",
+            "price":25
+        },
+        {
+            "type":"carrot",
+            "name":"carrot seed",
+            "price":30
+        },
+        {
+            "type":"potato",
+            "name":"potato seed",
+            "price":35
+        },
+        {
+            "type":"tomato",
+            "name":"tomato seed",
+            "price":40
+        },
+        {
+            "type":"sheep",
+            "name":"sheep",
+            "price":100
+        },
+        {
+            "type":"fence",
+            "name":"fence",
+            "price":5
+        }
+    ]
+}

@@ -78,12 +78,10 @@ impl Tilemap {
         layer: Layer,
         tile_pos: &UVec2,
     ) -> Option<&Tile> {
-        let result = self.get_tile(
+        self.get_tile(
             &UVec3::new(chunk_pos.x, chunk_pos.y, layer as u32),
             tile_pos,
-        );
-        println!("{:?}", result);
-        result
+        )
     }
 
     pub fn set_tile(

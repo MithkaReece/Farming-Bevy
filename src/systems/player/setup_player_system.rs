@@ -12,11 +12,11 @@ pub fn setup_player(
     let texture_handle = asset_server.load("Thief_anim.png");
     // Create a TextureAtlas from the sprite sheet (with no padding and no offset)
     let texture_atlas =
-        TextureAtlas::from_grid(texture_handle, Vec2::new(50.0, 30.0), 8, 5, None, None);
+        TextureAtlas::from_grid(texture_handle, Vec2::new(50.0, 30.0), 8, 5, Some(Vec2::new(0.0,1.0)), Some(Vec2::new(0.0,1.0)));
     // Add the TextureAtlas to the asset storage
     let atlas_handle = texture_atlases.add(texture_atlas);
     // Define the sprite for the specific frame you want to display
-    let sprite_index = 0;
+    let sprite_index = 1;
 
     // Spawn an entity with the selected sprite
     commands.spawn((

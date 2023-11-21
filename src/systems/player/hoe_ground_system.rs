@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    components::{Player, Tile, Tilemap, GroundType},
+    components::{Player, TileType, Tilemap, GroundType, Tile},
     config::layer_enum::Layer,
     resources::ScalingFactor,
 };
@@ -33,7 +33,7 @@ pub fn hoe_ground(
     // Check ground is grass
     match tilemap.get_tile_with_layer(&chunk_pos, Layer::Ground, &tile_pos) {
         Some(object_tile) => {
-            if *object_tile != Tile::Ground(GroundType::Grass) {
+            if object_tile.tile_type != TileType::Ground(GroundType::Grass) {
                 return;
             }
         }
@@ -43,7 +43,12 @@ pub fn hoe_ground(
         }
     }
 
-    match tilemap.set_tile_with_layer(&chunk_pos, Layer::Ground, &tile_pos, Tile::Ground(GroundType::Hoed)) {
+    let new_tile = Tile {
+        tile_type: TileType::Ground(GroundType::Hoed),
+        has_collision: false
+    };
+
+    match tilemap.set_tile_with_layer(&chunk_pos, Layer::Ground, &tile_pos, new_tile) {
         Ok(_) => println!("Hoe ground"),
         Err(e) => println!("{e}"),
     }

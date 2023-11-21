@@ -15,6 +15,7 @@ pub fn build_inventory_ui(commands: &mut Commands, asset_server: Res<AssetServer
         .spawn((NodeBundle {
             style: Style {
                 display: Display::Flex,
+                position_type: PositionType::Absolute,
                 width: Val::Percent(100.0),
                 height: Val::Percent(100.0),
                 align_items: AlignItems::Center,

@@ -3,14 +3,14 @@ pub mod plant_growth_system;
 pub mod setup_tilemap_system;
 pub mod sync_tile_visual_system;
 pub mod tile_hover_system;
-pub mod setup_tile_data;
+pub mod setup_tile_data_system;
 
 use self::chunk_loading_system::*;
 use self::plant_growth_system::*;
 use self::setup_tilemap_system::*;
 use self::sync_tile_visual_system::*;
 use self::tile_hover_system::*;
-use self::setup_tile_data::*;
+use self::setup_tile_data_system::*;
 
 use bevy::prelude::*;
 
