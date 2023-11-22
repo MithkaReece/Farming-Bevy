@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     components::{Player, TileType, Tilemap, GroundType, Tile},
-    config::layer_enum::Layer,
+    config::layer_enum::TilemapLayer,
     resources::ScalingFactor,
 };
 
@@ -18,20 +18,20 @@ pub fn hoe_ground(
 
     let mut tilemap = tilemap.single_mut();
 
-    let (chunk_pos, tile_pos) = tilemap.from_pos_no_layer(
+    let (chunk_pos, tile_pos) = tilemap.real_to_chunk_and_tile(
         &player.single().looking_location,
         scaling_factor.get_full_factor(),
     );
 
     // Check no object tile in the way of hoeing
-    if tilemap.get_tile_with_layer(&chunk_pos, Layer::Object, &tile_pos) != None {
+    if tilemap.get_tile_with_layer(&chunk_pos, TilemapLayer::Object, &tile_pos) != None {
         println!("could not find object tile to hoe (hoe_ground_system) at {:?} {:?}", chunk_pos, tile_pos);
         return;
     }
     
 
     // Check ground is grass
-    match tilemap.get_tile_with_layer(&chunk_pos, Layer::Ground, &tile_pos) {
+    match tilemap.get_tile_with_layer(&chunk_pos, TilemapLayer::Ground, &tile_pos) {
         Some(object_tile) => {
             if object_tile.tile_type != TileType::Ground(GroundType::Grass) {
                 return;
@@ -48,7 +48,7 @@ pub fn hoe_ground(
         has_collision: false
     };
 
-    match tilemap.set_tile_with_layer(&chunk_pos, Layer::Ground, &tile_pos, new_tile) {
+    match tilemap.set_tile_with_layer(&chunk_pos, TilemapLayer::Ground, &tile_pos, new_tile) {
         Ok(_) => println!("Hoe ground"),
         Err(e) => println!("{e}"),
     }

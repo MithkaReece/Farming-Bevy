@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{components::Player, resources::ScalingFactor};
+use crate::{components::{Player, PlayerState}, resources::ScalingFactor};
 
 pub fn setup_player(
     mut commands: Commands,
@@ -27,10 +27,11 @@ pub fn setup_player(
                 ..Default::default()
             },
             transform: Transform::from_scale(Vec3::splat(scaling_factor.factor))
-                * Transform::from_translation(Vec3::new(0.0, 0.0, 3.0)),
+                * Transform::from_translation(Vec3::new(50.0, 50.0, 3.0)),
             ..Default::default()
         },
-        Player { speed: 500.0, looking_location: Vec2::new(0.0, 0.0) },
+        Player { speed: 500.0, looking_location: Vec2::new(0.0, 0.0),
+        current_state: PlayerState::Idle },
         Name::new("Player"),
     ));
 }

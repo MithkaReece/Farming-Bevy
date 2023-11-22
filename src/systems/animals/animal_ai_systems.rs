@@ -1,19 +1,38 @@
 use bevy::prelude::*;
 
 use crate::{
-    components::{Animal, AnimalBT, Target},
+    components::{Animal, AnimalBT, Target, Tilemap},
     config::{
         animal_action_enum::{self, AnimalAction},
         Status,
-    },
+    }, resources::ScalingFactor,
 };
 use animal_action_enum::AnimalAction::*;
 use Status::*;
+
+use super::pathfinding::a_star;
+
+
 pub fn animal_ai(
     mut animals: Query<(&mut Transform, &Animal, &Target, &mut AnimalBT)>,
     time: Res<Time>,
+    scaling_factor: Res<ScalingFactor>,
+    tilemap: Query<&Tilemap>,
 ) {
+    let tilemap = tilemap.single();
+
     for (mut transform, animal, target, mut bt) in &mut animals {
+        let grid_pos = tilemap.real_to_grid_pos(
+            &Vec2::new(transform.translation.x, transform.translation.y),
+             scaling_factor.get_full_factor()
+        );
+        if let Some(path) = a_star(tilemap, &grid_pos, &UVec2::new(1,1)) {
+            println!("{:?}", path);
+        }else{
+            println!("No path found");
+        }
+
+
         let dt = time.delta_seconds_f64();
 
         let bt = &mut bt.0;

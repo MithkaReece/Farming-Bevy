@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     components::{Player, Tilemap},
-    config::layer_enum::Layer,
+    config::layer_enum::TilemapLayer,
     resources::ScalingFactor,
 };
 
@@ -16,7 +16,7 @@ pub fn tile_hover(
     let chunk_size = tilemap.chunk_size as u32;
 
     //Find chunk and tile position given a real-world coordinate
-    let (chunk_pos, tile_pos) = tilemap.from_pos_no_layer(
+    let (chunk_pos, tile_pos) = tilemap.real_to_chunk_and_tile(
         &player.single().looking_location,
         scaling_factor.get_full_factor(),
     );
@@ -28,7 +28,7 @@ pub fn tile_hover(
             //TODO: Should just be able to take out the ground layer instead of iterating
             for (chunk_z, chunk) in col.iter().enumerate() {
                 // Only consider ground layer
-                if chunk_z != Layer::Ground as usize {
+                if chunk_z != TilemapLayer::Ground as usize {
                     continue;
                 }
 

@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{components::{TileType, Tilemap}, config::layer_enum::Layer};
+use crate::{components::{TileType, Tilemap}, config::layer_enum::TilemapLayer};
 
 pub fn plant_growth(
     time: Res<Time>,
@@ -16,7 +16,7 @@ pub fn plant_growth(
     for chunk_x in 0..num_chunks_x {
         for chunk_y in 0..num_chunks_y {
             for chunk_z in 0..num_chunks_z {
-                if chunk_z != Layer::Object as usize {
+                if chunk_z != TilemapLayer::Object as usize {
                     continue;
                 }
 

@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     components::{Player, TileType, Tilemap, PlantType},
-    config::layer_enum::Layer,
+    config::layer_enum::TilemapLayer,
     resources::{money_resource::Money, ScalingFactor},
 };
 
@@ -19,13 +19,13 @@ pub fn harvest_plant(
 
     let mut tilemap = tilemap.single_mut();
 
-    let (chunk_pos, tile_pos) = tilemap.from_pos_no_layer(
+    let (chunk_pos, tile_pos) = tilemap.real_to_chunk_and_tile(
         &player.single().looking_location,
         scaling_factor.get_full_factor(),
     );
 
     let object_tile = match tilemap.get_tile_mut(
-        &UVec3::new(chunk_pos.x, chunk_pos.y, Layer::Object as u32),
+        &UVec3::new(chunk_pos.x, chunk_pos.y, TilemapLayer::Object as u32),
         &tile_pos,
     ) {
         Some(tile) => tile,

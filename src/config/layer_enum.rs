@@ -1,4 +1,4 @@
-pub enum Layer {
+pub enum TilemapLayer {
     Ground = 0,
     Object = 1,
     Collision = 2,

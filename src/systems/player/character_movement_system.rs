@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     components::{Player, Tilemap},
-    config::layer_enum::Layer,
+    config::layer_enum::TilemapLayer,
     resources::ScalingFactor,
 };
 
@@ -35,8 +35,10 @@ pub fn character_movement(
             movement_norm = movement_norm.normalize();
         }
 
-        let movement_vec = Vec2::new(movement_norm.x * player.speed * time.delta_seconds(),
-        movement_norm.y * player.speed * time.delta_seconds());
+        let movement_vec = Vec2::new(
+            movement_norm.x * player.speed * time.delta_seconds(),
+            movement_norm.y * player.speed * time.delta_seconds()
+        );
 
         let current_pos = Vec2::new(transform.translation.x, transform.translation.y);
 
@@ -74,43 +76,40 @@ fn update_looking_direction(movement_vec: &Vec2, scaling_factor: &Res<'_, Scalin
     }
 }
 
+// TODO: May need to add snapping to collision edges
 fn check_collision(current_pos: &Vec2, current_direction: Vec2, tilemap: &Tilemap, scaling_factor: f32, ) -> bool {
-    let left_pos = current_pos.clone() + current_direction - Vec2::new(-scaling_factor/4.0, scaling_factor/2.0);
-    
-    let (left_chunk_pos, left_tile_pos) = tilemap.from_pos_no_layer(
+    let left_pos = current_pos.clone() + Vec2::new(0.22*scaling_factor, -0.5*scaling_factor) + current_direction;
+    if left_pos.x <= 0.0 || left_pos.y <= 0.0 { return true; } // Checking for chunk edges
+    let (left_chunk_pos, left_tile_pos) = tilemap.real_to_chunk_and_tile(
         &left_pos,
         scaling_factor,
     );
 
-    let right_pos = left_pos.clone() + Vec2::new(scaling_factor/2.0,0.0);
-    let (right_chunk_pos, right_tile_pos) = tilemap.from_pos_no_layer(
+    let right_pos = current_pos.clone() + Vec2::new(0.78*scaling_factor, -0.5*scaling_factor) + current_direction;
+    let (right_chunk_pos, right_tile_pos) = tilemap.real_to_chunk_and_tile(
         &right_pos,
         scaling_factor,
     );
 
-    for i in 0..Layer::EndOfLayers as u32 {
-        match tilemap.get_tile(
+    // Checking for chunk edges
+    let mut nothing_left = true;
+    let mut nothing_right = true;
+
+    for i in 0..TilemapLayer::EndOfLayers as u32 {
+        if let Some(tile) = tilemap.get_tile(
             &UVec3::new(left_chunk_pos.x, left_chunk_pos.y, i),
             &left_tile_pos,
         ) {
-            Some(tile) => {
-                if tile.has_collision {
-                    return true
-                }
-            },
-            None => {}
+            nothing_left = false;
+            if tile.has_collision { return true }
         };
-        match tilemap.get_tile(
+        if let Some(tile) = tilemap.get_tile(
             &UVec3::new(right_chunk_pos.x, right_chunk_pos.y, i),
             &right_tile_pos,
         ) {
-            Some(tile) => {
-                if tile.has_collision {
-                    return true
-                }
-            },
-            None => {}
+            nothing_right = false;
+            if tile.has_collision  {return true }
         };
     }
-    false
+    nothing_left || nothing_right
 }

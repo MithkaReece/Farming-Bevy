@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     components::{chunk_component::Chunk, tile_component::Tile},
-    config::layer_enum::Layer,
+    config::layer_enum::TilemapLayer,
 };
 
 #[derive(Component)]
@@ -62,6 +62,16 @@ impl Tilemap {
         }
     }
 
+    pub fn get_tile_from_grid_pos(&self, grid_pos: &UVec2, layer: u32) -> Option<&Tile> {
+        let (chunk_pos, tile_pos) = self.grid_pos_to_chunk_tile(grid_pos);
+        self.get_tile(&UVec3::new(chunk_pos.x, chunk_pos.y, layer as u32), &tile_pos)
+    }
+
+    fn grid_pos_to_chunk_tile(&self, grid_pos: &UVec2) -> (UVec2, UVec2) {
+        (UVec2::new(grid_pos.x / self.chunk_size as u32, grid_pos.y / self.chunk_size as u32),
+        UVec2::new(grid_pos.x % self.chunk_size as u32, grid_pos.y % self.chunk_size as u32))
+    }
+
     pub fn get_tile_mut(&mut self, chunk_pos: &UVec3, tile_pos: &UVec2) -> Option<&mut Tile> {
         if self.invalid_chunk_pos(chunk_pos) {
             None
@@ -75,7 +85,7 @@ impl Tilemap {
     pub fn get_tile_with_layer(
         &self,
         chunk_pos: &UVec2,
-        layer: Layer,
+        layer: TilemapLayer,
         tile_pos: &UVec2,
     ) -> Option<&Tile> {
         self.get_tile(
@@ -102,7 +112,7 @@ impl Tilemap {
     pub fn set_tile_with_layer(
         &mut self,
         chunk_pos: &UVec2,
-        layer: Layer,
+        layer: TilemapLayer,
         tile_pos: &UVec2,
         new_tile: Tile,
     ) -> Result<(), String> {
@@ -113,22 +123,7 @@ impl Tilemap {
         )
     }
 
-    // // Calculate chunk and tile positions from real world position
-    // pub fn from_pos(&self, real_pos: &Vec2, layer: usize, scaling_factor: f32) -> (UVec3, UVec2) {
-    //     // Calculate chunk pos (scale down and divide by number of tiles per chunk and floor)
-    //     let chunk_pos = (real_pos.clone() / (self.chunk_size as f32 * scaling_factor)).floor();
-    //     // Calculate tile pos
-    //     let chunk_real_pos = chunk_pos.clone() * (self.chunk_size as f32 * scaling_factor);
-    //     // Offset by chunk real position then scale down and floor for tile position
-    //     let tile_pos = ((real_pos.clone() - chunk_real_pos) / scaling_factor).floor();
-
-    //     (
-    //         UVec3::new(chunk_pos.x as u32, chunk_pos.y as u32, layer as u32),
-    //         UVec2::new(tile_pos.x as u32, tile_pos.y as u32),
-    //     )
-    // }
-
-    pub fn from_pos_no_layer(&self, real_pos: &Vec2, scaling_factor: f32) -> (UVec2, UVec2) {
+    pub fn real_to_chunk_and_tile(&self, real_pos: &Vec2, scaling_factor: f32) -> (UVec2, UVec2) {
         // Calculate chunk pos (scale down and divide by number of tiles per chunk and floor)
         let chunk_pos = (real_pos.clone() / (self.chunk_size as f32 * scaling_factor)).floor();
         // Calculate tile pos
@@ -140,6 +135,12 @@ impl Tilemap {
             UVec2::new(chunk_pos.x as u32, chunk_pos.y as u32),
             UVec2::new(tile_pos.x as u32, tile_pos.y as u32),
         )
+    }
+
+    pub fn real_to_grid_pos(&self, real_pos: &Vec2, scaling_factor: f32) -> UVec2 {
+        let (chunk_pos, tile_pos) = self.real_to_chunk_and_tile(real_pos, scaling_factor);
+        UVec2::new(tile_pos.x + chunk_pos.x * self.chunk_size as u32, 
+            tile_pos.y + chunk_pos.y * self.chunk_size as u32)
     }
 
     fn invalid_chunk_pos(&self, chunk_pos: &UVec3) -> bool {
