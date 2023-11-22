@@ -50,15 +50,15 @@ impl<T: PartialOrd> SortedList<T> {
 // TODO - Optimise to use less nodes which will also solve the diagonal problem
 pub fn a_star(tilemap: &Tilemap, start: &UVec2, target: &UVec2) -> Option<Vec<UVec2>>{
     // Can easily change to include diagonals
-    let neighbour_directions: [IVec2; 4] = [
+    let neighbour_directions: [IVec2; 8] = [
         IVec2 { x:1, y:0},
-        //IVec2 { x:1, y:1},
+        IVec2 { x:1, y:1},
         IVec2 { x:0, y:1},
-        //IVec2 { x:-1, y:1},
+        IVec2 { x:-1, y:1},
         IVec2 { x:-1, y:0},
-        //IVec2 { x:-1, y:-1},
+        IVec2 { x:-1, y:-1},
         IVec2 { x:0, y:-1},
-        //IVec2 { x:1, y:-1},
+        IVec2 { x:1, y:-1},
     ];
     
     let mut closedset = Vec::new();
@@ -108,22 +108,13 @@ pub fn a_star(tilemap: &Tilemap, start: &UVec2, target: &UVec2) -> Option<Vec<UV
             
             let neighbour_position = UVec2::new(x as u32, y as u32);
 
-            // Skip colliding neighbours as no route
-            let mut valid_tile = false;
-            let mut collision = false;
-            for layer in 0..TilemapLayer::EndOfLayers as u32 {
-                if let Some(tile) = tilemap.get_tile_from_grid_pos(
-                    &neighbour_position, layer,
-                ) {
-                    valid_tile = true;
-                    if tile.has_collision { 
-                        collision = true;
-                        break;
-                     }
-                };
+            if check_collision(tilemap, &neighbour_position) { continue;}
+            if dir.x != 0 && dir.y != 0 { // Diagonal - check either side is not collision so walkable
+                if check_collision(tilemap, &UVec2::new(current_node.position.x, neighbour_position.y)) 
+                    || check_collision(tilemap, &UVec2::new(neighbour_position.x, current_node.position.y)) {
+                        continue;
+                    }
             }
-            // No tile found
-            if collision || !valid_tile { continue; }
 
             // Skipped neighbours in closedset as already done
             if let Some(_) = closedset.iter().find(|item| item.position == neighbour_position){
@@ -178,4 +169,23 @@ fn heuristic_cost_estimate(pos_a: &UVec2, pos_b: &UVec2) -> f32{
     }else{
         (14 * delta_x + 10 * (delta_y - delta_x)) as f32
     }
+}
+
+fn check_collision(tilemap: &Tilemap, position: &UVec2) -> bool{
+    // Skip colliding neighbours as no route
+    let mut valid_tile = false;
+    let mut collision = false;
+    for layer in 0..TilemapLayer::EndOfLayers as u32 {
+        if let Some(tile) = tilemap.get_tile_from_grid_pos(
+            position, layer,
+        ) {
+            valid_tile = true;
+            if tile.has_collision { 
+                collision = true;
+                break;
+             }
+        };
+    }
+    // No tile found
+    collision || !valid_tile
 }
