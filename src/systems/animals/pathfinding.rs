@@ -7,12 +7,12 @@ struct Node {
     parent_index: i32,
     position: UVec2,
     cost_g: f32,
-    cost_f: f32,
+    cost_h: f32,
 }
 
 impl Node {
     fn get_cost(&self) -> f32{
-        self.cost_g + self.cost_f
+        self.cost_g + self.cost_h
     }
 }
 
@@ -32,7 +32,7 @@ impl<T: PartialOrd> SortedList<T> {
     }
 
     pub fn add(&mut self, item: T) {
-        let index = match self.items.binary_search_by(|existing_item| existing_item.partial_cmp(&item).unwrap()) {
+        let index = match self.items.binary_search_by(|existing_item| item.partial_cmp(&existing_item).unwrap()) {
             Ok(idx) | Err(idx) => idx,
         };
         self.items.insert(index,item);
@@ -47,38 +47,56 @@ impl<T: PartialOrd> SortedList<T> {
     }
 }
 
+// TODO - Optimise to use less nodes which will also solve the diagonal problem
 pub fn a_star(tilemap: &Tilemap, start: &UVec2, target: &UVec2) -> Option<Vec<UVec2>>{
-    let neighbour_directions: [IVec2; 8] = [
+    // Can easily change to include diagonals
+    let neighbour_directions: [IVec2; 4] = [
         IVec2 { x:1, y:0},
-        IVec2 { x:1, y:1},
+        //IVec2 { x:1, y:1},
         IVec2 { x:0, y:1},
-        IVec2 { x:-1, y:1},
+        //IVec2 { x:-1, y:1},
         IVec2 { x:-1, y:0},
-        IVec2 { x:-1, y:-1},
+        //IVec2 { x:-1, y:-1},
         IVec2 { x:0, y:-1},
-        IVec2 { x:1, y:-1},
+        //IVec2 { x:1, y:-1},
     ];
     
     let mut closedset = Vec::new();
     let mut openset = SortedList::new();
-    openset.add(Node{ parent_index: -1, position: start.clone(), cost_g: 0.0, cost_f: 0.0});
+    openset.add(Node{ parent_index: -1, position: start.clone(), cost_g: 0.0, cost_h: 0.0});
     
     let mut path = Vec::new();
 
+    let mut iterations = 0;
+
     while openset.len() > 0 {
-        // (Use of unwrap) -> No checks needed as they are already don
+        iterations += 1;
+
+        // (Use of unwrap) -> No checks needed as they are already done
         closedset.push(openset.pop().unwrap());
         let mut current_node = closedset.last().unwrap();
+
+        if iterations < 3 {
+            //println!("{:?}", current_node);
+        }
+        //println!("{:?}, {:?}", current_node.position, current_node.get_cost());
         
         // Trace path from end to start
         if current_node.position == *target {
-            while current_node.position != *start || current_node.parent_index == -1 {
+            let mut max_iterations = 1000;
+            while current_node.position != *start && current_node.parent_index != -1 {
+                max_iterations-=1;
+                if max_iterations < 0 { return None }
                 path.push(current_node.position.clone());
+                //println!("=>{:?}", current_node);
                 current_node = match closedset.get(current_node.parent_index as usize) {
                     Some(node) => node,
                     None => return None
                 }
             }
+            path.push(current_node.position.clone());
+            //println!("=>{:?}", current_node);
+            return Some(path);
         }
 
         //For neighbour not collider and not in closed set
@@ -91,15 +109,21 @@ pub fn a_star(tilemap: &Tilemap, start: &UVec2, target: &UVec2) -> Option<Vec<UV
             let neighbour_position = UVec2::new(x as u32, y as u32);
 
             // Skip colliding neighbours as no route
+            let mut valid_tile = false;
+            let mut collision = false;
             for layer in 0..TilemapLayer::EndOfLayers as u32 {
-                match tilemap.get_tile_from_grid_pos(
-                    &neighbour_position,
-                    layer,
+                if let Some(tile) = tilemap.get_tile_from_grid_pos(
+                    &neighbour_position, layer,
                 ) {
-                    Some(tile) => { if tile.has_collision { continue }},
-                    None => { continue}
+                    valid_tile = true;
+                    if tile.has_collision { 
+                        collision = true;
+                        break;
+                     }
                 };
             }
+            // No tile found
+            if collision || !valid_tile { continue; }
 
             // Skipped neighbours in closedset as already done
             if let Some(_) = closedset.iter().find(|item| item.position == neighbour_position){
@@ -111,22 +135,38 @@ pub fn a_star(tilemap: &Tilemap, start: &UVec2, target: &UVec2) -> Option<Vec<UV
             if let Some(neighbour_node) = openset.items.iter_mut().find(|item| item.position == neighbour_position) {
                 let cost = current_node.cost_g + 
                     heuristic_cost_estimate(&current_node.position,&neighbour_position);
+                    //println!("{:?} < {:?}", cost, neighbour_node.cost_g);
                 if cost < neighbour_node.cost_g { // If smaller cost is found, replace existing cost
                     neighbour_node.cost_g = cost;
+                    if let Some(parent_index) = closedset.iter().position(|item| item.position == current_node.position) {
+                        neighbour_node.parent_index = parent_index as i32;
+                    }else{
+                        println!("This part of the pathfinding should never happen");
+                        return None;
+                    }
                 }
             }else{ // First time seeing this node
                 let cost = current_node.cost_g + 
                     heuristic_cost_estimate(&current_node.position,&neighbour_position);
-                let neighbour_node = Node{ parent_index: closedset.len() as i32, position: neighbour_position, cost_g: cost, 
-                    cost_f: heuristic_cost_estimate(&neighbour_position, &target)};
-                openset.add(neighbour_node);
+                if let Some(parent_index) = closedset.iter().position(|item| item.position == current_node.position) {
+                    if current_node.position == *start {
+                        println!("({:?},{:?}, {:?})", x, y, cost + heuristic_cost_estimate(&neighbour_position, &target));
+                    }
+                    let neighbour_node = Node{ parent_index: parent_index as i32, position: neighbour_position, cost_g: cost, 
+                        cost_h: heuristic_cost_estimate(&neighbour_position, &target)};
+                    openset.add(neighbour_node);
+                }else{
+                    println!("This part of the pathfinding should never happen");
+                    return None;
+                }
+                
             }
 
            
         }
     }
-
-    Some(path)
+    println!("Run out of nodes");
+    None
 }
 
 fn heuristic_cost_estimate(pos_a: &UVec2, pos_b: &UVec2) -> f32{

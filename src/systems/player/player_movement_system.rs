@@ -3,11 +3,11 @@ use bevy::prelude::*;
 use crate::{
     components::{Player, Tilemap},
     config::layer_enum::TilemapLayer,
-    resources::ScalingFactor,
+    resources::ScalingFactor, systems::pathfinding::a_star,
 };
 
 
-pub fn character_movement(
+pub fn player_movement(
     mut players: Query<(&mut Transform, &mut Player)>,
     input: Res<Input<KeyCode>>,
     scaling_factor: Res<ScalingFactor>,
@@ -18,6 +18,21 @@ pub fn character_movement(
 
     for (mut transform, mut player) in &mut players {
         let mut movement_norm = Vec2::new(0.0, 0.0);
+
+        if input.pressed(KeyCode::K){
+            let grid_pos = tilemap.real_to_grid_pos(
+                &Vec2::new(transform.translation.x, transform.translation.y),
+                 scaling_factor.get_full_factor()
+            );
+            if let Some(mut path) = a_star(tilemap, &grid_pos, &UVec2::new(1,1)) {
+                println!("Start: {:?}", grid_pos);
+                //path.reverse();
+                println!("{:?}", path);
+            }else{
+                println!("No path found");
+            }
+    
+        }
 
         if input.pressed(KeyCode::W) {
             movement_norm.y += 1.0;
@@ -78,14 +93,14 @@ fn update_looking_direction(movement_vec: &Vec2, scaling_factor: &Res<'_, Scalin
 
 // TODO: May need to add snapping to collision edges
 fn check_collision(current_pos: &Vec2, current_direction: Vec2, tilemap: &Tilemap, scaling_factor: f32, ) -> bool {
-    let left_pos = current_pos.clone() + Vec2::new(0.22*scaling_factor, -0.5*scaling_factor) + current_direction;
+    let left_pos = current_pos.clone() + Vec2::new(0.22*scaling_factor, -0.35*scaling_factor) + current_direction;
     if left_pos.x <= 0.0 || left_pos.y <= 0.0 { return true; } // Checking for chunk edges
     let (left_chunk_pos, left_tile_pos) = tilemap.real_to_chunk_and_tile(
         &left_pos,
         scaling_factor,
     );
 
-    let right_pos = current_pos.clone() + Vec2::new(0.78*scaling_factor, -0.5*scaling_factor) + current_direction;
+    let right_pos = current_pos.clone() + Vec2::new(0.78*scaling_factor, -0.35*scaling_factor) + current_direction;
     let (right_chunk_pos, right_tile_pos) = tilemap.real_to_chunk_and_tile(
         &right_pos,
         scaling_factor,

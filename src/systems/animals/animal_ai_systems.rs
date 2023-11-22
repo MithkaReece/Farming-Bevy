@@ -22,16 +22,7 @@ pub fn animal_ai(
     let tilemap = tilemap.single();
 
     for (mut transform, animal, target, mut bt) in &mut animals {
-        let grid_pos = tilemap.real_to_grid_pos(
-            &Vec2::new(transform.translation.x, transform.translation.y),
-             scaling_factor.get_full_factor()
-        );
-        if let Some(path) = a_star(tilemap, &grid_pos, &UVec2::new(1,1)) {
-            println!("{:?}", path);
-        }else{
-            println!("No path found");
-        }
-
+        
 
         let dt = time.delta_seconds_f64();
 
