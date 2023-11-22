@@ -30,11 +30,11 @@ pub fn animal_target_setter(
     for (transform, mut target) in &mut animals {
         // Close enough to target (set new)
         let distance = target
-            .position
+            .random_pos.as_vec2()
             .distance(Vec2::new(transform.translation.x, transform.translation.y));
         if distance < min_distance {
             // Make new target
-            target.position = random_location_in_box(
+            target.random_pos = random_location_in_box(
                 Vec2::new(transform.translation.x, transform.translation.y),
                 10.0 * full_scaling_factor,
                 &bounds,
@@ -43,7 +43,7 @@ pub fn animal_target_setter(
     }
 }
 
-fn random_location_in_box(origin: Vec2, max_distance: f32, bounds: &BoxBounds) -> Vec2 {
+fn random_location_in_box(origin: Vec2, max_distance: f32, bounds: &BoxBounds) -> UVec2 {
     loop {
         let random_x = origin.x + rand::random::<f32>() * 2.0 * max_distance - max_distance;
         let random_y = origin.y + rand::random::<f32>() * 2.0 * max_distance - max_distance;
@@ -53,7 +53,7 @@ fn random_location_in_box(origin: Vec2, max_distance: f32, bounds: &BoxBounds) -
             && random_y >= bounds.min_y
             && random_y <= bounds.max_y
         {
-            return Vec2::new(random_x, random_y);
+            return UVec2::new(random_x as u32, random_y as u32);
         }
     }
 }

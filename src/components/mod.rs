@@ -9,6 +9,7 @@ pub mod target_component;
 pub mod tile_component;
 pub mod tilemap_component;
 pub mod ui;
+pub mod memory_component;
 
 pub use animal_component::*;
 pub use behaviour_tree_component::*;
@@ -21,3 +22,4 @@ pub use target_component::*;
 pub use tile_component::*;
 pub use tilemap_component::*;
 pub use ui::*;
+pub use memory_component::*;

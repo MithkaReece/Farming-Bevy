@@ -1,13 +1,13 @@
-pub mod animal_ai_systems;
+pub mod animal_ai_system;
 pub mod animal_stats_system;
-pub mod animal_target_setter_system;
 pub mod update_animal_blackboard_system;
 pub mod pathfinding;
+pub mod animal_memory_system;
 
-use self::animal_ai_systems::*;
+use self::animal_ai_system::*;
 use self::animal_stats_system::*;
-use self::animal_target_setter_system::*;
 use self::update_animal_blackboard_system::*;
+use self::animal_memory_system::*;
 
 use bevy::prelude::*;
 
@@ -19,8 +19,8 @@ impl Plugin for AnimalsPlugin {
             (
                 animal_ai,
                 animal_stats,
-                animal_target_setter,
                 update_animal_blackboard,
+                animal_memory,
             ),
         );
     }

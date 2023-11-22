@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use bevy::prelude::*;
 
 use crate::{
-    components::{Animal, AnimalBT, AnimalType, Player, Sheep, Target},
+    components::{Animal, AnimalBT, AnimalType, Player, Sheep, Target, memory_component::Memory},
     config::{
         animal_action_enum::{self, AnimalAction, AnimalCondition},
         BehaviourTreeNode, BT,
@@ -63,13 +63,16 @@ pub fn spawn_sheep(
             thirst: 32.0,
             hunger: 31.0,
             movement_speed: 30.0,
+            sight_distance: 5,
         },
         Target {
-            position: Vec2::new(
-                player_transform.translation.x,
-                player_transform.translation.y,
+            path: Vec::new(),
+            random_pos: UVec2::new(
+                player_transform.translation.x as u32,
+                player_transform.translation.y as u32,
             ),
         },
+        Memory::new(10, 10),
         AnimalBT(get_bt()),
     ));
 }

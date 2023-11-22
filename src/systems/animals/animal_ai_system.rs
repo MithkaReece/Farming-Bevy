@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    components::{Animal, AnimalBT, Target, Tilemap},
+    components::{Animal, AnimalBT, Target, Tilemap, memory_component::Memory},
     config::{
         animal_action_enum::{self, AnimalAction},
         Status,
@@ -14,19 +14,23 @@ use super::pathfinding::a_star;
 
 
 pub fn animal_ai(
-    mut animals: Query<(&mut Transform, &Animal, &Target, &mut AnimalBT)>,
+    mut animals: Query<(&mut Transform, &Animal, &mut Target, &mut Memory, &mut AnimalBT)>,
     time: Res<Time>,
     scaling_factor: Res<ScalingFactor>,
     tilemap: Query<&Tilemap>,
 ) {
     let tilemap = tilemap.single();
 
-    for (mut transform, animal, target, mut bt) in &mut animals {
-        
-
+    for (mut transform, animal,mut target, mut memory, mut bt) in &mut animals {
         let dt = time.delta_seconds_f64();
 
         let bt = &mut bt.0;
+
+        let current_pos = Vec2::new(transform.translation.x, transform.translation.y);
+        let grid_pos = tilemap.real_to_grid_pos(
+            &current_pos,
+             scaling_factor.get_full_factor()
+        );
 
         bt.execute(&mut |action| match action {
             DrinkWater => {
@@ -39,18 +43,45 @@ pub fn animal_ai(
             }
             GoToWater => {
                 // Needs memory setup (therefore herd setup)
-                // println!("Go to water");
-                Failure
+                println!("Go to water");
+                if let Some(_) = memory.top_water() {
+                    target.check_target_reached(tilemap, 
+                        scaling_factor.get_full_factor(), &current_pos);
+
+                    move_towards_target(
+                        &mut transform,
+                        &target,
+                        animal.movement_speed,
+                        time.delta_seconds(),
+                    );
+                    Running
+                }else{
+                    println!("Go to water failed");
+                    Failure
+                }
             }
             LookForWater => {
                 println!("Look for water");
-                move_towards_target(
-                    &mut transform,
-                    &target,
-                    animal.movement_speed,
-                    time.delta_seconds(),
-                );
-                Running
+
+                if let Some(water_pos) = memory.top_water() {
+                    if let Some(path) = a_star(tilemap, &grid_pos, water_pos) {
+                        target.path = path;
+                    }else{
+                        println!("Pathfind to target failed");
+                    }
+                    Failure
+                }else{
+                    target.check_target_reached(tilemap, 
+                        scaling_factor.get_full_factor(), &current_pos);
+
+                    move_towards_target(
+                        &mut transform,
+                        &target,
+                        animal.movement_speed,
+                        time.delta_seconds(),
+                    );
+                    Running
+                }
             }
             EatFood => {
                 // println!("Eat food");
@@ -62,18 +93,21 @@ pub fn animal_ai(
                 Failure
             }
             LookForFood => {
-                println!("Look for food");
+                //println!("Look for food");
                 Running
             }
             Breed => {
-                println!("Breed");
+                //println!("Breed");
                 Success
             }
             MoveToHerd => {
-                println!("Move to herd");
+                //println!("Move to herd");
                 Success
             }
             Wander => {
+                target.check_target_reached(tilemap, 
+                    scaling_factor.get_full_factor(), &current_pos);
+
                 move_towards_target(
                     &mut transform,
                     &target,
@@ -168,8 +202,8 @@ fn move_towards_target(
 ) {
     // println!("Wander");
     let target_position = Vec3::new(
-        target.position.x,
-        target.position.y,
+        target.random_pos.x as f32,
+        target.random_pos.y as f32,
         transform.translation.z,
     );
     let direction = target_position - transform.translation;

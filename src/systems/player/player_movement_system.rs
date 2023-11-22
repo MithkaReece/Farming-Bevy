@@ -26,7 +26,7 @@ pub fn player_movement(
             );
             if let Some(mut path) = a_star(tilemap, &grid_pos, &UVec2::new(1,1)) {
                 println!("Start: {:?}", grid_pos);
-                //path.reverse();
+                path.reverse();
                 println!("{:?}", path);
             }else{
                 println!("No path found");

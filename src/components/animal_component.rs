@@ -6,8 +6,10 @@ pub struct Animal {
     pub thirst: f32,
     pub hunger: f32,
     pub movement_speed: f32,
+    pub sight_distance: u32,
 }
 
 pub enum AnimalType {
     Sheep,
 }
+

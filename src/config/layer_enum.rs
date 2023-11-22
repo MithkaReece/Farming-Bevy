@@ -1,3 +1,5 @@
+
+#[derive(Clone, Copy)]
 pub enum TilemapLayer {
     Ground = 0,
     Object = 1,
