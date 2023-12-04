@@ -1,7 +1,9 @@
 use bevy::prelude::*;
 
 use crate::{
-    components::{item_component::ItemType, Inventory, PlantData, Player, TileType, Tilemap, GroundType, Tile},
+    components::{
+        item_component::ItemType, GroundType, Inventory, PlantData, Player, Tile, TileType, Tilemap,
+    },
     config::layer_enum::TilemapLayer,
     resources::ScalingFactor,
 };
@@ -33,14 +35,11 @@ pub fn plant_seed(
     }
 
     let mut tilemap = tilemap.single_mut();
-
-    let (chunk_pos, tile_pos) = tilemap.real_to_chunk_and_tile(
-        &player.single().looking_location,
-        scaling_factor.get_full_factor(),
-    );
+    let player = player.single();
+    let real_pos = Vec2::new(player.looking_location.x, player.looking_location.y);
 
     // Check ground is hoed
-    match tilemap.get_tile_with_layer(&chunk_pos, TilemapLayer::Ground, &tile_pos) {
+    match tilemap.get_tile_from_real(&real_pos, TilemapLayer::Ground, scaling_factor.full()) {
         Some(ground_tile) => {
             if ground_tile.tile_type != TileType::Ground(GroundType::Hoed) {
                 return;
@@ -53,7 +52,7 @@ pub fn plant_seed(
     }
 
     // Check object tile is empty
-    if tilemap.get_tile_with_layer(&chunk_pos, TilemapLayer::Object, &tile_pos) != None {
+    if tilemap.get_tile_from_real(&real_pos, TilemapLayer::Object, scaling_factor.full()) != None {
         println!("Not on object tile (plant_seed_systems");
         return;
     }
@@ -70,12 +69,17 @@ pub fn plant_seed(
                     worth: 0.0,
                 },
             ),
-            has_collision: false
+            has_collision: false,
         },
-        _ => return
+        _ => return,
     };
     // println!("Planted{:?}", &new_tile);
-    match tilemap.set_tile_with_layer(&chunk_pos, TilemapLayer::Object, &tile_pos, new_tile) {
+    match tilemap.set_tile_from_real(
+        &real_pos,
+        TilemapLayer::Object,
+        scaling_factor.full(),
+        new_tile,
+    ) {
         Ok(_) => println!("Hoe ground"),
         Err(e) => println!("{e}"),
     }

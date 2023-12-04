@@ -6,68 +6,45 @@ use crate::{
     resources::ScalingFactor,
 };
 
+/***
+ * TODO: Maybe make a separate layer for highlights as atm its just ground
+ *
+ */
+
 pub fn tile_hover(
-    player: Query<&Player>,
+    mut player: Query<&mut Player>,
     mut tile_entities: Query<&mut TextureAtlasSprite>,
     scaling_factor: ResMut<ScalingFactor>,
-    tilemap: Query<&Tilemap>,
+    mut tilemap: Query<&mut Tilemap>,
 ) {
-    let tilemap = tilemap.single();
-    let chunk_size = tilemap.chunk_size as u32;
+    let tilemap = tilemap.single_mut();
+    let mut player = player.single_mut();
 
-    //Find chunk and tile position given a real-world coordinate
-    let (chunk_pos, tile_pos) = tilemap.real_to_chunk_and_tile(
-        &player.single().looking_location,
-        scaling_factor.get_full_factor(),
+    let old_pos = Vec2::new(
+        player.previous_looking_location.x,
+        player.previous_looking_location.y,
     );
-
-    
-
-    for (chunk_x, row) in tilemap.chunks.iter().enumerate() {
-        for (chunk_y, col) in row.iter().enumerate() {
-            //TODO: Should just be able to take out the ground layer instead of iterating
-            for (chunk_z, chunk) in col.iter().enumerate() {
-                // Only consider ground layer
-                if chunk_z != TilemapLayer::Ground as usize {
-                    continue;
-                }
-
-                if chunk_x as u32 == chunk_pos.x && chunk_y as u32 == chunk_pos.y {
-                    for y in 0..chunk_size as u32 {
-                        for x in 0..chunk_size as u32 {
-                            let entity = match chunk.get_tile_entity(&UVec2::new(x, y)) {
-                                Some(entity) => entity,
-                                None => continue,
-                            };
-                            // Highlight tile if matches highlighted position
-                            if let Ok(mut sprite) = tile_entities.get_mut(*entity) {
-                                if x == tile_pos.x && y == tile_pos.y {
-                                    sprite.color = Color::Rgba {
-                                        red: 1.0,
-                                        green: 0.9,
-                                        blue: 0.9,
-                                        alpha: 1.0,
-                                    };
-                                } else {
-                                    sprite.color = Color::WHITE;
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    for y in 0..chunk_size as u32 {
-                        for x in 0..chunk_size as u32 {
-                            let entity = match chunk.get_tile_entity(&UVec2::new(x, y)) {
-                                Some(entity) => entity,
-                                None => continue,
-                            };
-                            if let Ok(mut sprite) = tile_entities.get_mut(*entity) {
-                                sprite.color = Color::WHITE;
-                            }
-                        }
-                    }
-                }
-            }
+    if let Some(old_entity) =
+        tilemap.get_entity_from_real(&old_pos, TilemapLayer::Ground, scaling_factor.full())
+    {
+        if let Ok(mut sprite) = tile_entities.get_mut(old_entity) {
+            sprite.color = Color::WHITE;
         }
     }
+
+    let real_pos = Vec2::new(player.looking_location.x, player.looking_location.y);
+    if let Some(new_entity) =
+        tilemap.get_entity_from_real(&real_pos, TilemapLayer::Ground, scaling_factor.full())
+    {
+        if let Ok(mut sprite) = tile_entities.get_mut(new_entity) {
+            sprite.color = Color::Rgba {
+                red: 1.0,
+                green: 0.9,
+                blue: 0.9,
+                alpha: 1.0,
+            };
+        }
+    }
+
+    player.previous_looking_location = player.looking_location.clone();
 }

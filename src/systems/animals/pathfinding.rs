@@ -176,8 +176,8 @@ fn check_collision(tilemap: &Tilemap, position: &UVec2) -> bool{
     let mut valid_tile = false;
     let mut collision = false;
     for layer in 0..TilemapLayer::EndOfLayers as u32 {
-        if let Some(tile) = tilemap.get_tile_from_grid_pos(
-            position, layer,
+        if let Some(tile) = tilemap.get_tile(
+            &UVec3::new(position.x, position.y, layer),
         ) {
             valid_tile = true;
             if tile.has_collision { 

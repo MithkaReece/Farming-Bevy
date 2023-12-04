@@ -7,7 +7,7 @@ pub struct ScalingFactor {
 }
 
 impl ScalingFactor {
-    pub fn get_full_factor(&self) -> f32 {
+    pub fn full(&self) -> f32 {
         self.factor * self.tile_size as f32
     }
 }

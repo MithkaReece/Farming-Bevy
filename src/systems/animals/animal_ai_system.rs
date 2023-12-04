@@ -21,26 +21,25 @@ use super::pathfinding::a_star;
  *
  * Efficient way to remember places that are also accessible
  * So lets say you see a water tile, there is no path
- * I don't want to pathfind every second I see it, so I need some way to 
+ * I don't want to pathfind every second I see it, so I need some way to
  * label it as, inaccessible
  * This should be within the tile
  * In fact within tile generation, tiles should have an accessibility
  * Okey but what if its within an island, water could be accessible from an island
  * Okey so we need to divide the world in accessibility islands
- * 
+ *
  * So after tilemap is generated. We need a accessibility pass
  * Algorithm:
  * Loop through tilemap (nested for loop for all tiles)
  * -1 means unset island, 0 means inaccessible
  * current_island_index = 1
- * If tile != collider && tile.island == -1 
+ * If tile != collider && tile.island == -1
  *  Set all tile neighbours recursively (use queues) to current island index
  *  When exhausted
  *      current_island_index++
  * Do until all tiles have been checked (has tile.island)
- * 
+ *
  */
-
 
 pub fn animal_ai(
     mut animals: Query<(
@@ -62,7 +61,7 @@ pub fn animal_ai(
         let bt = &mut bt.0;
 
         let current_pos = Vec2::new(transform.translation.x, transform.translation.y);
-        let grid_pos = tilemap.real_to_grid_pos(&current_pos, scaling_factor.get_full_factor());
+        let grid_pos = tilemap.real_to_grid_pos(&current_pos, scaling_factor.full());
 
         bt.execute(&mut |action| match action {
             DrinkWater => {
@@ -104,11 +103,7 @@ pub fn animal_ai(
                         Running
                     } else {
                         println!("Set random target");
-                        target.set_random_target(
-                            tilemap,
-                            scaling_factor.get_full_factor(),
-                            &current_pos,
-                        );
+                        target.set_random_target(tilemap, scaling_factor.full(), &current_pos);
                         Failure
                     }
                 }
@@ -140,11 +135,7 @@ pub fn animal_ai(
                     Running
                 } else {
                     println!("Set random target");
-                    target.set_random_target(
-                        tilemap,
-                        scaling_factor.get_full_factor(),
-                        &current_pos,
-                    );
+                    target.set_random_target(tilemap, scaling_factor.full(), &current_pos);
                     Failure
                 }
             }

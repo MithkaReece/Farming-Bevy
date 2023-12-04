@@ -22,7 +22,7 @@ pub fn player_movement(
         if input.pressed(KeyCode::K) {
             let grid_pos = tilemap.real_to_grid_pos(
                 &Vec2::new(transform.translation.x, transform.translation.y),
-                scaling_factor.get_full_factor(),
+                scaling_factor.full(),
             );
             if let Some(mut path) = a_star(tilemap, &grid_pos, &UVec2::new(1, 1)) {
                 println!("Start: {:?}", grid_pos);
@@ -60,7 +60,7 @@ pub fn player_movement(
             &current_pos,
             Vec2::new(movement_vec.x, movement_vec.y),
             tilemap,
-            scaling_factor.get_full_factor(),
+            scaling_factor.full(),
         ) {
             // Both x and y
             transform.translation.x += movement_vec.x;
@@ -70,7 +70,7 @@ pub fn player_movement(
             &current_pos,
             Vec2::new(movement_vec.x, 0.0),
             tilemap,
-            scaling_factor.get_full_factor(),
+            scaling_factor.full(),
         ) {
             // Only x
             transform.translation.x += movement_vec.x;
@@ -84,7 +84,7 @@ pub fn player_movement(
             &current_pos,
             Vec2::new(0.0, movement_vec.y),
             tilemap,
-            scaling_factor.get_full_factor(),
+            scaling_factor.full(),
         ) {
             // Only y
             transform.translation.y += movement_vec.y;
@@ -105,7 +105,7 @@ fn update_looking_direction(
     player: &mut Mut<'_, Player>,
 ) {
     if movement_vec.length() > 0.0 {
-        let dist = scaling_factor.get_full_factor() * 1.5;
+        let dist = scaling_factor.full() * 1.5;
         player.looking_location = Vec2::new(
             (transform.translation.x) + movement_vec.x * dist,
             transform.translation.y + movement_vec.y * dist,
@@ -131,32 +131,23 @@ fn check_collision(
     if left_pos.x <= 0.0 || left_pos.y <= 0.0 {
         return true;
     } // Checking for chunk edges
-    let (left_chunk_pos, left_tile_pos) = tilemap.real_to_chunk_and_tile(&left_pos, scaling_factor);
 
     let right_pos = current_pos.clone()
         + Vec2::new(0.78 * scaling_factor, -0.35 * scaling_factor)
         + current_direction;
-    let (right_chunk_pos, right_tile_pos) =
-        tilemap.real_to_chunk_and_tile(&right_pos, scaling_factor);
 
     // Checking for chunk edges
     let mut nothing_left = true;
     let mut nothing_right = true;
 
     for i in 0..TilemapLayer::EndOfLayers as u32 {
-        if let Some(tile) = tilemap.get_tile_from_chunk(
-            &UVec3::new(left_chunk_pos.x, left_chunk_pos.y, i),
-            &left_tile_pos,
-        ) {
+        if let Some(tile) = tilemap.get_tile_from_real(&left_pos, i.into(), scaling_factor) {
             nothing_left = false;
             if tile.has_collision {
                 return true;
             }
         };
-        if let Some(tile) = tilemap.get_tile_from_chunk(
-            &UVec3::new(right_chunk_pos.x, right_chunk_pos.y, i),
-            &right_tile_pos,
-        ) {
+        if let Some(tile) = tilemap.get_tile_from_real(&right_pos, i.into(), scaling_factor) {
             nothing_right = false;
             if tile.has_collision {
                 return true;

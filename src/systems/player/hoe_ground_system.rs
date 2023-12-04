@@ -17,23 +17,20 @@ pub fn hoe_ground(
     }
 
     let mut tilemap = tilemap.single_mut();
-
-    let (chunk_pos, tile_pos) = tilemap.real_to_chunk_and_tile(
-        &player.single().looking_location,
-        scaling_factor.get_full_factor(),
-    );
+    let player = player.single();
+    let real_pos = Vec2::new(player.looking_location.x, player.looking_location.y);
 
     // Check no object tile in the way of hoeing
-    if tilemap.get_tile_with_layer(&chunk_pos, TilemapLayer::Object, &tile_pos) != None {
+    if tilemap.get_tile_from_real(&real_pos, TilemapLayer::Object, scaling_factor.full()) != None {
         println!(
-            "could not find object tile to hoe (hoe_ground_system) at {:?} {:?}",
-            chunk_pos, tile_pos
+            "could not find object tile to hoe (hoe_ground_system) at ({:?} {:?})",
+            player.looking_location.x, player.looking_location.y
         );
         return;
     }
 
     // Check ground is grass
-    match tilemap.get_tile_with_layer(&chunk_pos, TilemapLayer::Ground, &tile_pos) {
+    match tilemap.get_tile_from_real(&real_pos, TilemapLayer::Ground, scaling_factor.full()) {
         Some(object_tile) => {
             if object_tile.tile_type != TileType::Ground(GroundType::Grass) {
                 return;
@@ -50,7 +47,12 @@ pub fn hoe_ground(
         has_collision: false,
     };
 
-    match tilemap.set_tile_with_layer(&chunk_pos, TilemapLayer::Ground, &tile_pos, new_tile) {
+    match tilemap.set_tile_from_real(
+        &real_pos,
+        TilemapLayer::Ground,
+        scaling_factor.full(),
+        new_tile,
+    ) {
         Ok(_) => println!("Hoe ground"),
         Err(e) => println!("{e}"),
     }
