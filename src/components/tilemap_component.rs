@@ -12,6 +12,7 @@ pub struct Tilemap {
     pub chunks: Vec<Vec<Chunk>>,
     pub tiles: Vec<Vec<Vec<Option<Tile>>>>,
     pub tile_entities: Vec<Vec<Vec<Option<Entity>>>>,
+    pub island_indexes: Vec<Vec<i32>>,
 }
 
 /**
@@ -69,6 +70,7 @@ impl Tilemap {
                 vec![vec![None; dimensions.z as usize]; tile_dimension_y];
                 tile_dimension_x
             ],
+            island_indexes: vec![vec![-1; tile_dimension_y]; tile_dimension_x],
         }
     }
 
