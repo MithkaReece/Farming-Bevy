@@ -1,8 +1,6 @@
 use bevy::{prelude::*, sprite::collide_aabb::Collision};
 
-
-
-/* 
+/*
 #[derive(Debug, Component, Clone, Copy)]
 pub struct FenceData {}
 
@@ -54,21 +52,21 @@ impl TileType {
     pub fn get_group_name(&self) -> String {
         match self {
             TileType::Ground(_) => "Ground".to_string(),
-            TileType::Plant(_,_) =>  "Plant".to_string(),
+            TileType::Plant(_, _) => "Plant".to_string(),
         }
     }
 
     pub fn get_type_name(&self) -> String {
         match self {
             TileType::Ground(ground_type) => ground_type.get_name(),
-            TileType::Plant(plant_type,_) => plant_type.get_name(),
+            TileType::Plant(plant_type, _) => plant_type.get_name(),
         }
     }
 
-    pub fn apply_index(&self, index:usize) -> usize {
+    pub fn apply_index(&self, index: usize) -> usize {
         match &self {
             TileType::Plant(_, plant_data) => index + plant_data.stage,
-            _ => index
+            _ => index,
         }
     }
 }
@@ -80,20 +78,19 @@ impl PartialEq for TileType {
                 TileType::Ground(ground_type_other) => ground_type == ground_type_other,
                 _ => false,
             },
-            TileType::Plant(plant_type,_) => match other {
-                TileType::Plant(plant_type_other,_) => plant_type == plant_type_other,
+            TileType::Plant(plant_type, _) => match other {
+                TileType::Plant(plant_type_other, _) => plant_type == plant_type_other,
                 _ => false,
             },
         }
     }
 }
 
-
 #[derive(Component, Debug, Clone, PartialEq, Eq)]
 pub enum GroundType {
     Grass,
     Hoed,
-    Water
+    Water,
 }
 
 impl GroundType {
@@ -132,4 +129,3 @@ pub struct PlantData {
     pub growth_timer: Timer,
     pub worth: f64,
 }
-

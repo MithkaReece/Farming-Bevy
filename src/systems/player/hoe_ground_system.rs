@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    components::{Player, TileType, Tilemap, GroundType, Tile},
+    components::{GroundType, Player, Tile, TileType, Tilemap},
     config::layer_enum::TilemapLayer,
     resources::ScalingFactor,
 };
@@ -25,10 +25,12 @@ pub fn hoe_ground(
 
     // Check no object tile in the way of hoeing
     if tilemap.get_tile_with_layer(&chunk_pos, TilemapLayer::Object, &tile_pos) != None {
-        println!("could not find object tile to hoe (hoe_ground_system) at {:?} {:?}", chunk_pos, tile_pos);
+        println!(
+            "could not find object tile to hoe (hoe_ground_system) at {:?} {:?}",
+            chunk_pos, tile_pos
+        );
         return;
     }
-    
 
     // Check ground is grass
     match tilemap.get_tile_with_layer(&chunk_pos, TilemapLayer::Ground, &tile_pos) {
@@ -45,7 +47,7 @@ pub fn hoe_ground(
 
     let new_tile = Tile {
         tile_type: TileType::Ground(GroundType::Hoed),
-        has_collision: false
+        has_collision: false,
     };
 
     match tilemap.set_tile_with_layer(&chunk_pos, TilemapLayer::Ground, &tile_pos, new_tile) {

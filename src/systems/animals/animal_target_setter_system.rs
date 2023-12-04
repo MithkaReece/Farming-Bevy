@@ -11,6 +11,11 @@ struct BoxBounds {
     max_y: f32,
 }
 
+/**
+ * DEPRECATED
+ *
+ */
+
 pub fn animal_target_setter(
     mut animals: Query<(&Transform, &mut Target)>,
     scaling_factor: Res<ScalingFactor>,
@@ -30,7 +35,8 @@ pub fn animal_target_setter(
     for (transform, mut target) in &mut animals {
         // Close enough to target (set new)
         let distance = target
-            .random_pos.as_vec2()
+            .random_pos
+            .as_vec2()
             .distance(Vec2::new(transform.translation.x, transform.translation.y));
         if distance < min_distance {
             // Make new target

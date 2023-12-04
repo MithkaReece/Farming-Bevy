@@ -51,25 +51,34 @@ impl Tilemap {
         }
     }
 
-    pub fn get_tile(&self, chunk_pos: &UVec3, tile_pos: &UVec2) -> Option<&Tile> {
+    pub fn get_tile_from_chunk(&self, chunk_pos: &UVec3, tile_pos: &UVec2) -> Option<&Tile> {
         if self.invalid_chunk_pos(chunk_pos) {
             //println!("Invalid chunk pos");
             None
         } else {
-            let chunk =
-                &self.chunks[chunk_pos.x as usize][chunk_pos.y as usize][chunk_pos.z as usize];
-            chunk.get_tile(tile_pos)
+            self.chunks[chunk_pos.x as usize][chunk_pos.y as usize][chunk_pos.z as usize].get_tile(tile_pos)
         }
     }
 
     pub fn get_tile_from_grid_pos(&self, grid_pos: &UVec2, layer: u32) -> Option<&Tile> {
         let (chunk_pos, tile_pos) = self.grid_pos_to_chunk_tile(grid_pos);
-        self.get_tile(&UVec3::new(chunk_pos.x, chunk_pos.y, layer as u32), &tile_pos)
+        self.get_tile_from_chunk(
+            &UVec3::new(chunk_pos.x, chunk_pos.y, layer as u32),
+            &tile_pos,
+        )
     }
 
     fn grid_pos_to_chunk_tile(&self, grid_pos: &UVec2) -> (UVec2, UVec2) {
-        (UVec2::new(grid_pos.x / self.chunk_size as u32, grid_pos.y / self.chunk_size as u32),
-        UVec2::new(grid_pos.x % self.chunk_size as u32, grid_pos.y % self.chunk_size as u32))
+        (
+            UVec2::new(
+                grid_pos.x / self.chunk_size as u32,
+                grid_pos.y / self.chunk_size as u32,
+            ),
+            UVec2::new(
+                grid_pos.x % self.chunk_size as u32,
+                grid_pos.y % self.chunk_size as u32,
+            ),
+        )
     }
 
     pub fn get_tile_mut(&mut self, chunk_pos: &UVec3, tile_pos: &UVec2) -> Option<&mut Tile> {
@@ -88,7 +97,7 @@ impl Tilemap {
         layer: TilemapLayer,
         tile_pos: &UVec2,
     ) -> Option<&Tile> {
-        self.get_tile(
+        self.get_tile_from_chunk(
             &UVec3::new(chunk_pos.x, chunk_pos.y, layer as u32),
             tile_pos,
         )
@@ -139,8 +148,10 @@ impl Tilemap {
 
     pub fn real_to_grid_pos(&self, real_pos: &Vec2, scaling_factor: f32) -> UVec2 {
         let (chunk_pos, tile_pos) = self.real_to_chunk_and_tile(real_pos, scaling_factor);
-        UVec2::new(tile_pos.x + chunk_pos.x * self.chunk_size as u32, 
-            tile_pos.y + chunk_pos.y * self.chunk_size as u32)
+        UVec2::new(
+            tile_pos.x + chunk_pos.x * self.chunk_size as u32,
+            tile_pos.y + chunk_pos.y * self.chunk_size as u32,
+        )
     }
 
     fn invalid_chunk_pos(&self, chunk_pos: &UVec3) -> bool {

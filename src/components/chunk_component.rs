@@ -6,17 +6,17 @@ use crate::components::tile_component::Tile;
 pub struct Chunk {
     pub chunk_size: usize,
     pub tiles: Vec<Vec<Option<Tile>>>,
+    islands: Vec<Vec<i32>>,
     pub is_loaded: bool,
     pub tile_entities: Vec<Vec<Option<Entity>>>,
 }
 
 impl Chunk {
     pub fn new(chunk_size: usize) -> Self {
-        let tiles = vec![vec![None; chunk_size]; chunk_size];
-
         Chunk {
             chunk_size,
-            tiles,
+            tiles: vec![vec![None; chunk_size]; chunk_size],
+            islands: vec![vec![-1; chunk_size]; chunk_size],
             is_loaded: false,
             tile_entities: vec![vec![None; chunk_size]; chunk_size],
         }
@@ -74,7 +74,7 @@ impl Chunk {
             for col in 0..self.chunk_size {
                 let visibility = match self.get_tile(&UVec2::new(col as u32, row as u32)) {
                     Some(tile) => Visibility::Inherited,
-                    None => Visibility::Hidden
+                    None => Visibility::Hidden,
                 };
 
                 let real_tile_pos = Vec3::new(
@@ -98,7 +98,7 @@ impl Chunk {
                             "({},{},{})",
                             real_tile_pos.x, real_tile_pos.y, chunk_layer
                         )),
-                    ),)
+                    ))
                     .id();
                 self.tile_entities[col][row] = Some(entity);
             }
